@@ -107,6 +107,9 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// check nut
 	errors := nf.Check()
+	if nf.Name == "debug" {
+		errors = append(errors, "Name 'debug' is reserved.")
+	}
 	if len(errors) != 0 {
 		err = fmt.Errorf("%s", strings.Join(errors, "\n"))
 		ServeJSONError(w, http.StatusBadRequest, err, d)

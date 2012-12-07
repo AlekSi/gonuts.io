@@ -19,5 +19,8 @@ handlers:
   static_files: LICENSE
   upload: LICENSE
   mime_type: text/plain
+- url: /debug/.*
+  script: _go_app
+  login: admin
 - url: /.*
   script: _go_app

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	_ "expvar"
 	"html/template"
 	"net/http"
 	"strings"
