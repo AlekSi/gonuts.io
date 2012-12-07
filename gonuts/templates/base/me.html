@@ -1,0 +1,17 @@
+{{if .LoginURL}}
+	<p><a href="{{.LoginURL}}">Login with Google account.</a><p>
+{{else}}
+	{{if .Token}}
+		<p>
+			You are logged in and registered with Google account <code>{{.Email}}</code>. <a href="{{.LogoutURL}}">Logout</a>.
+		</p>
+		<p>
+			Your access token is <code>{{.Token}}</code>. <a href="{{.RegisterURL}}">Regenerate</a>.
+		</p>
+	{{else}}
+		<p>
+			You are logged in but not registered with Google account <code>{{.Email}}</code>.
+			<a href="{{.RegisterURL}}">Register</a> or <a href="{{.LogoutURL}}">logout</a> and use different Google account.
+		</p>
+	{{end}}
+{{end}}

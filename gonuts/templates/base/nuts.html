@@ -1,0 +1,5 @@
+<ul>
+	{{range .Nuts}}
+		<li><a href="/{{.Name}}"><code>{{.Name}}</code></a> – {{lower .Doc}}
+	{{end}}
+</ul>

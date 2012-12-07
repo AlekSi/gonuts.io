@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head head profile="http://a9.com/-/spec/opensearch/1.1/">
+  <link rel="search" type="application/opensearchdescription+xml" href="/-/public/opensearch.xml"
+        title="gonuts.io" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  {{with .Tabtitle}}
+    <title>{{.}} - Go Nuts</title>
+  {{else}}
+    <title>Go Nuts</title>
+  {{end}}
+  <link type="text/css" rel="stylesheet" href="/-/public/style.css">
+  <script type="text/javascript" src="/-/public/search.js"></script>
+
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-35077898-1']);
+    _gaq.push(['_setDomainName', 'gonuts.io']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+</head>
+
+<body>
+  <div id="topbar">
+    <div class="container{{if .Title}} wide{{end}}">
+
+      <form method="GET" action="/-/nuts">
+        <div id="menu">
+          <a href="/-/nuts">All Nuts</a>
+          <a href="/-/me">Me</a>
+          <a href="/-/doc">Documents</a>
+          <a href="/-/about">About</a>
+          <input type="text" id="search" name="q" class="inactive" value="Search">
+        </div>
+        <div id="heading"><a href="/">Go Nuts – package manager</a></div>
+      </form>
+
+    </div>
+  </div>
+
+  <div id="page"{{if .Title}} class="wide"{{end}}>
+
+    <p>Package and dependency manager for Go (golang).</p>
+    <p><strong>This site currently works in preview mode. All data will be wiped before official launch.</strong></p>
+
+    {{with .Title}}
+      <h1>{{.}}</h1>
+    {{end}}
+    {{with .Subtitle}}
+      <h2>{{.}}</h2>
+    {{end}}
+
+    {{.Content}}
+
+  </div>
+
+  <div id="footer">
+  </div>
+</body>
+
+</html>
