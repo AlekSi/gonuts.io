@@ -15,6 +15,7 @@ func nutsHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	d := make(ContentData)
 	c := appengine.NewContext(r)
+	apiCall := r.Header.Get("Accept") == "application/json"
 
 	// TODO: no need to load all, then render all - replace with chunking
 	var nuts []gonuts.Nut
@@ -29,6 +30,12 @@ func nutsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	gonuts.LogError(c, err)
 	d["Nuts"] = nuts
+
+	if apiCall {
+		d["Message"] = title
+		ServeJSON(w, http.StatusOK, d)
+		return
+	}
 
 	var content bytes.Buffer
 	gonuts.PanicIfErr(Base.ExecuteTemplate(&content, "nuts.html", d))
