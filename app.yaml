@@ -15,5 +15,9 @@ handlers:
 - url: /robots\.txt
   static_files: public/robots.txt
   upload: public/robots\.txt
+- url: /-/LICENSE
+  static_files: LICENSE
+  upload: LICENSE
+  mime_type: text/plain
 - url: /.*
   script: _go_app
