@@ -22,5 +22,8 @@ fvb:
 run: fvb
 	dev_appserver.py --skip_sdk_update_check --use_sqlite .
 
+run_clean: fvb
+	dev_appserver.py --clear_datastore --use_sqlite .
+
 deploy: fvb
 	appcfg.py --oauth2 update .
