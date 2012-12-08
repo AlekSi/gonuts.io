@@ -46,6 +46,7 @@ func init() {
 
 	Router.Get("/-/about", http.HandlerFunc(aboutHandler))
 	Router.Get("/-/doc", http.HandlerFunc(docHandler))
+	Router.Get("/-/doc/:section", http.HandlerFunc(docHandler))
 	Router.Get("/-/me", http.HandlerFunc(myHandler))
 	Router.Get("/-/me/register", http.HandlerFunc(registerHandler))
 	Router.Get("/-/nuts", http.HandlerFunc(nutsHandler))

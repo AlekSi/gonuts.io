@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"net/http"
 
@@ -11,7 +12,13 @@ import (
 func docHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var content bytes.Buffer
-	gonuts.PanicIfErr(Base.ExecuteTemplate(&content, "doc.html", ""))
+
+	section := r.URL.Query().Get(":section")
+	file := "doc.html"
+	if section != "" {
+		file = fmt.Sprintf("doc_%s.html", section)
+	}
+	gonuts.PanicIfErr(Base.ExecuteTemplate(&content, file, ""))
 
 	bd := BaseData{
 		Tabtitle: "Documentation",

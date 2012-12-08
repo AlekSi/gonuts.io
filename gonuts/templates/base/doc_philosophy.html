@@ -1,0 +1,14 @@
+<h2>Philosophy</h2>
+
+<p>
+	Go comes with a <a href="http://golang.org/cmd/go/"><code>go</code> tool</a> – the standard way to fetch, build, and install Go packages and commands. It uses code repositories URLs like <a href="http://github.com/AlekSi/nut"><code>github.com/AlekSi/nut</code></a>. This is clean and clear solution, but there are two problems with this approach.
+</p>
+<p>
+	First, it doesn't support package versioning. <code>go get</code> always installs latest version. If someone wants to install previous one, he/she have to use <code>git</code>/<code>hg</code>/<code>svn</code>/<code>bzr</code> manually. Therefore, package authors are forced to maintain backward compatibility since first commit. If they want to remove some API, they should use different repository.
+</p>
+<p>
+	Also in practice many developers are moving their code to other places (for example, from Google Code to GitHub), renaming repositories (<code>web.go</code> become <code>web</code>) or just deleting them (at the time of this writing many links in <a href="http://godashboard.appspot.com/">Go Projects Dashboard</a> and <a href="http://go.pkgdoc.org/-/index">GoPkgDoc</a> are dead).
+</p>
+<p>
+	Currently, <code>nut</code> tool doesn't solve all those problems. But it will.
+</p>
