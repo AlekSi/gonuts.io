@@ -11,7 +11,7 @@ prepare:
 	go get -u github.com/bmizerany/pat
 	rm -fr $(GOPATH)/src/github.com/bmizerany/pat/.git
 	rm -fr $(GOPATH)/src/github.com/bmizerany/pat/example
-	../nut/gonut install -v ../nut/nut-0.1.0.nut
+	nut get -v nut
 
 # format, vet, build
 fvb:
