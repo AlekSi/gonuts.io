@@ -9,16 +9,23 @@ inbound_services:
 handlers:
 - url: /-/public
   static_dir: public
+
 - url: /favicon\.ico
   static_files: public/favicon.ico
-  upload: public/favicon\.ico
+  upload: public/favicon.ico
+- url: /apple-touch-icon(.*)\.png
+  static_files: public/apple-touch-icon\1.png
+  upload: public/apple-touch-icon(.*).png
+
 - url: /robots\.txt
   static_files: public/robots.txt
-  upload: public/robots\.txt
+  upload: public/robots.txt
+
 - url: /-/LICENSE
   static_files: LICENSE
   upload: LICENSE
   mime_type: text/plain
+
 - url: /debug/.*
   script: _go_app
   login: admin
