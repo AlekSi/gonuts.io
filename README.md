@@ -1,4 +1,4 @@
-gonuts.io
+gonuts.io [![Is maintained?](http://stillmaintained.com/AlekSi/gonuts.io.png)](http://stillmaintained.com/AlekSi/gonuts.io)
 =========
 
 This code powers [gonuts.io](http://gonuts.io) – central repository for versioned [Go](http://golang.org) source code packages.
