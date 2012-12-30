@@ -1,5 +1,5 @@
 GOPATH:=$(shell pwd)/gopath
-SDKROOT:=/usr/local/share/go-app-engine-64
+SDKROOT:=/usr/local/Cellar/go-app-engine-64/1.7.4/share/go-app-engine-64
 
 GOFILES:=$(shell find . -name *.go)
 
@@ -20,10 +20,10 @@ fvb:
 	$(SDKROOT)/goroot/bin/go-app-builder -goroot=$(SDKROOT)/goroot -dynamic -unsafe $(GOFILES)
 
 run: fvb
-	dev_appserver.py --skip_sdk_update_check --use_sqlite .
+	$(SDKROOT)/dev_appserver.py --skip_sdk_update_check --use_sqlite .
 
 run_clean: fvb
-	dev_appserver.py --clear_datastore --use_sqlite .
+	$(SDKROOT)/dev_appserver.py --skip_sdk_update_check --use_sqlite --clear_datastore .
 
 deploy: fvb
-	appcfg.py --oauth2 update .
+	$(SDKROOT)/appcfg.py --oauth2 update .
