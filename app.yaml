@@ -27,8 +27,14 @@ handlers:
   upload: LICENSE
   mime_type: text/plain
 
+# /debug/vars
 - url: /debug/.*
   script: _go_app
   login: admin
+
+- url: /_ah/cron/
+  script: _go_app
+  login: admin
+
 - url: /.*
   script: _go_app

@@ -40,8 +40,7 @@ var (
 )
 
 func init() {
-	http.Handle("/", Router)
-
+	Router.Get("/_ah/cron/search", http.HandlerFunc(ahCronSearchHandler))
 	Router.Get("/_ah/", http.HandlerFunc(ahHandler))
 
 	Router.Get("/-/about", http.HandlerFunc(aboutHandler))
@@ -56,6 +55,8 @@ func init() {
 	Router.Get("/:name", http.HandlerFunc(nutShowHandler))
 
 	Router.Get("/", http.HandlerFunc(welcomeHandler))
+
+	http.Handle("/", Router)
 
 	Base.Funcs(map[string]interface{}{"lower": strings.ToLower})
 	template.Must(Base.ParseGlob("gonuts/templates/base/*.html"))

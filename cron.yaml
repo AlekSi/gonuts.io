@@ -1,0 +1,4 @@
+cron:
+- description: update search index
+  url: /_ah/cron/search
+  schedule: every 1 minutes
