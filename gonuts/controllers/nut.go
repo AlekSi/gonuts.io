@@ -151,7 +151,8 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// update search index
 	go func() {
-		gonuts.AddToSearchIndex(c, &nut)
+		err := gonuts.AddToSearchIndex(c, &nut)
+		gonuts.LogError(c, err)
 	}()
 
 	// done!

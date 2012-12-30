@@ -38,12 +38,7 @@ func PanicIfErr(err error) {
 	}
 }
 
-func AddToSearchIndex(c appengine.Context, nut *Nut) {
-	var err error
-	defer func() {
-		LogError(c, err)
-	}()
-
+func AddToSearchIndex(c appengine.Context, nut *Nut) (err error) {
 	m := make(map[string]interface{})
 	m["Nut"] = nut
 	b, err := json.Marshal(m)
@@ -56,4 +51,5 @@ func AddToSearchIndex(c appengine.Context, nut *Nut) {
 	if err == nil && res.StatusCode != 201 {
 		err = fmt.Errorf("%s -> %d", searchAddUrl.String(), res.StatusCode)
 	}
+	return
 }
