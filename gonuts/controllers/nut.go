@@ -12,7 +12,7 @@ import (
 	"appengine/blobstore"
 	"appengine/datastore"
 	"gonuts"
-	nutp "gopath/src/gonuts.io/nut/0.1.2"
+        nutp "gopath/src/gonuts.io/nut/0.2.0"
 )
 
 func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
