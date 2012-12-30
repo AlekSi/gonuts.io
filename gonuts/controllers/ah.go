@@ -41,7 +41,9 @@ func ahCronSearchHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	d["Message"] = fmt.Sprintf("Cron done in %f seconds.", time.Since(start)/time.Second)
+	m := fmt.Sprintf("Search index updated in %d seconds.", time.Since(start)/time.Second)
+	c.Infof("%s", m)
+	d["Message"] = m
 	ServeJSON(w, http.StatusOK, d)
 	return
 }
