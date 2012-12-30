@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io/ioutil"
@@ -11,8 +12,9 @@ import (
 	"appengine"
 	"appengine/blobstore"
 	"appengine/datastore"
+	"appengine/urlfetch"
 	"gonuts"
-        nutp "gopath/src/gonuts.io/nut/0.2.0"
+	nutp "gopath/src/gonuts.io/nut/0.2.0"
 )
 
 func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
@@ -116,6 +118,8 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO wrap writes in transaction
+
 	// store nut blob
 	bw, err := blobstore.Create(c, r.Header.Get("Content-Type"))
 	if err == nil {
@@ -134,7 +138,6 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		version.BlobKey = blobKey
 		_, err = datastore.Put(c, versionKey, &version)
-		d["BlobKey"] = blobKey
 	}
 	if err != nil {
 		ServeJSONError(w, http.StatusInternalServerError, err, d)
@@ -147,6 +150,26 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 		ServeJSONError(w, http.StatusInternalServerError, err, d)
 		return
 	}
+
+	d["Nut"] = nut
+	d["Version"] = version
+
+	// update search index
+	b, err = json.Marshal(d)
+	go func() {
+		if err != nil {
+			gonuts.LogError(c, err)
+			return
+		}
+		client := urlfetch.Client(c)
+		res, err := client.Post(searchAddUrl.String(), "application/json", bytes.NewReader(b))
+		if err != nil {
+			gonuts.LogError(c, err)
+		}
+		if res.StatusCode != 201 {
+			gonuts.LogError(c, fmt.Errorf("%s -> %d", searchAddUrl.String(), res.StatusCode))
+		}
+	}()
 
 	// done!
 	d["Message"] = fmt.Sprintf("Nut %q version %q published.", name, ver)

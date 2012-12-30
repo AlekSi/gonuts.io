@@ -5,8 +5,10 @@ import (
 	_ "expvar"
 	"html/template"
 	"net/http"
+	"net/url"
 	"strings"
 
+	"appengine"
 	"gonuts"
 	"gopath/src/github.com/bmizerany/pat"
 )
@@ -35,11 +37,22 @@ func ServeJSONError(w http.ResponseWriter, code int, err error, d ContentData) {
 }
 
 var (
-	Router = pat.New()
-	Base   = template.Must(template.ParseFiles("gonuts/templates/base.html"))
+	searchFindUrl url.URL
+	searchAddUrl  url.URL
+	Router        = pat.New()
+	Base          = template.Must(template.ParseFiles("gonuts/templates/base.html"))
 )
 
 func init() {
+	searchFindUrl = url.URL{Scheme: "http"}
+	if appengine.IsDevAppServer() {
+		searchFindUrl.Host = "localhost:8081"
+	} else {
+		searchFindUrl.Host = "search-gonuts-io.appspot.com"
+	}
+	searchAddUrl = searchFindUrl
+	searchAddUrl.Path = "/add"
+
 	http.Handle("/", Router)
 
 	Router.Get("/_ah/", http.HandlerFunc(ahHandler))
