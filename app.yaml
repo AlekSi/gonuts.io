@@ -20,6 +20,7 @@ handlers:
 - url: /robots\.txt
   static_files: public/robots.txt
   upload: public/robots.txt
+  mime_type: text/plain
 
 - url: /-/LICENSE
   static_files: LICENSE
