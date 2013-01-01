@@ -22,8 +22,10 @@ func init() {
 	} else {
 		searchFindUrl.Host = "search-gonuts-io.appspot.com"
 	}
+
 	searchAddUrl = searchFindUrl
 	searchAddUrl.Path = "/add"
+	searchAddUrl.RawQuery = fmt.Sprintf("token=%s", addSecretToken)
 }
 
 func LogError(c appengine.Context, err error) {
