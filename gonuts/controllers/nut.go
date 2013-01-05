@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"appengine"
 	"appengine/blobstore"
@@ -72,7 +73,7 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// nut version should not exist
 	versionKey := datastore.NewKey(c, "Version", fmt.Sprintf("%s-%s", name, ver), 0, nil)
-	version := gonuts.Version{NutName: name, Version: ver}
+	version := gonuts.Version{NutName: name, Version: ver, CreatedAt: time.Now()}
 	err = datastore.Get(c, versionKey, &version)
 	if err != nil && err != datastore.ErrNoSuchEntity {
 		ServeJSONError(w, http.StatusInternalServerError, err, d)
@@ -189,6 +190,12 @@ func nutShowHandler(w http.ResponseWriter, r *http.Request) {
 	if v.BlobKey != "" {
 		if apiCall {
 			blobstore.Send(w, v.BlobKey)
+			go func() {
+				v.Downloads++
+				key := datastore.NewKey(c, "Version", fmt.Sprintf("%s-%s", v.NutName, v.Version), 0, nil)
+				_, err := datastore.Put(c, key, v)
+				gonuts.LogError(c, err)
+			}()
 			return
 		}
 
