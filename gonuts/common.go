@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/url"
 
 	"appengine"
@@ -16,7 +17,7 @@ var (
 )
 
 func init() {
-	searchFindUrl = url.URL{Scheme: "http"}
+	searchFindUrl = url.URL{Scheme: "http", Path: "/"}
 	if appengine.IsDevAppServer() {
 		searchFindUrl.Host = "localhost:8081"
 	} else {
@@ -50,8 +51,44 @@ func AddToSearchIndex(c appengine.Context, nut *Nut) (err error) {
 
 	client := urlfetch.Client(c)
 	res, err := client.Post(searchAddUrl.String(), "application/json", bytes.NewReader(b))
-	if err == nil && res.StatusCode != 201 {
-		err = fmt.Errorf("%s -> %d", searchAddUrl.String(), res.StatusCode)
+
+	if err == nil {
+		res.Body.Close()
+		if res.StatusCode != 201 {
+			err = fmt.Errorf("%s -> %d", searchAddUrl.String(), res.StatusCode)
+		}
+	}
+	return
+}
+
+func SearchIndex(c appengine.Context, q string) (names []string, err error) {
+	client := urlfetch.Client(c)
+	u := searchFindUrl
+	u.RawQuery = url.Values{"q": []string{q}}.Encode()
+	res, err := client.Get(u.String())
+	if err == nil {
+		defer res.Body.Close()
+		if res.StatusCode != 200 {
+			err = fmt.Errorf("%s -> %d", u.String(), res.StatusCode)
+			return
+		}
+	}
+
+	b, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return
+	}
+
+	m := make(map[string]interface{})
+	err = json.Unmarshal(b, &m)
+	if err != nil {
+		return
+	}
+
+	nuts := m["Nuts"].([]interface{})
+	names = make([]string, len(nuts))
+	for i, n := range nuts {
+		names[i] = n.(map[string]interface{})["Name"].(string)
 	}
 	return
 }

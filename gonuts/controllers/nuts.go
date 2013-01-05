@@ -25,8 +25,16 @@ func nutsHandler(w http.ResponseWriter, r *http.Request) {
 	if q == "" {
 		_, err = datastore.NewQuery("Nut").Order("Name").GetAll(c, &nuts)
 	} else {
-		title = fmt.Sprintf("Search %q (doesn't really work yet)", q)
-		_, err = datastore.NewQuery("Nut").Filter("Name=", q).Limit(1).GetAll(c, &nuts)
+		title = fmt.Sprintf("Search %q", q)
+		names, err := gonuts.SearchIndex(c, q)
+		gonuts.LogError(c, err)
+
+		keys := make([]*datastore.Key, len(names))
+		for i, name := range names {
+			keys[i] = datastore.NewKey(c, "Nut", name, 0, nil)
+		}
+		nuts = make([]gonuts.Nut, len(keys))
+		err = datastore.GetMulti(c, keys, nuts)
 	}
 	gonuts.LogError(c, err)
 	d["Nuts"] = nuts
