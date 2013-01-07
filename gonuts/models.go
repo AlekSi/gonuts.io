@@ -32,6 +32,7 @@ type Version struct {
 	Version    string
 	VersionNum int // for sorting
 	Doc        string
+	Homepage   string
 	BlobKey    appengine.BlobKey
 	CreatedAt  time.Time
 	Downloads  int

@@ -1,4 +1,9 @@
 {{if .Name}}
+	{{if .Homepage}}
+		<p>
+			<a href="{{.Homepage}}">{{.Homepage}}</a>
+		</p>
+	{{end}}
 	<p>
 		{{.Doc}}
 	</p>

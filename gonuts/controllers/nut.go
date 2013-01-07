@@ -96,6 +96,7 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	nut.Doc = nf.Doc
 	version.Doc = nf.Doc
+	version.Homepage = nf.Homepage
 	version.VersionNum = nf.Version.Major*1000000 + nf.Version.Minor*1000 + nf.Version.Patch // for sorting
 
 	// check name and version match
@@ -202,6 +203,7 @@ func nutShowHandler(w http.ResponseWriter, r *http.Request) {
 		d["Name"] = v.NutName
 		d["Version"] = v.Version
 		d["Doc"] = v.Doc
+		d["Homepage"] = v.Homepage
 		title = fmt.Sprintf("%s %s", v.NutName, v.Version)
 	} else {
 		w.WriteHeader(http.StatusNotFound)
