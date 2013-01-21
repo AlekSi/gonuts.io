@@ -10,9 +10,9 @@ handlers:
 - url: /-/public
   static_dir: public
 
-- url: /favicon\.ico
-  static_files: public/favicon.ico
-  upload: public/favicon.ico
+- url: /favicon\.(.*)
+  static_files: public/favicon.\1
+  upload: public/favicon.(.*)
 - url: /apple-touch-icon(.*)\.png
   static_files: public/apple-touch-icon\1.png
   upload: public/apple-touch-icon(.*).png
