@@ -20,6 +20,14 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	d := make(ContentData)
 	c := appengine.NewContext(r)
+	ct := r.Header.Get("Content-Type")
+	putNut := ct == "application/zip"
+
+	if !putNut {
+		err := fmt.Errorf(`Unexpected Content-Type %q, should be "application/zip".`, ct)
+		ServeJSONError(w, http.StatusNotAcceptable, err, d)
+		return
+	}
 
 	name := r.URL.Query().Get(":name")
 	ver := r.URL.Query().Get(":version")
@@ -121,7 +129,7 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO wrap writes in transaction
 
 	// store nut blob
-	bw, err := blobstore.Create(c, r.Header.Get("Content-Type"))
+	bw, err := blobstore.Create(c, ct)
 	if err == nil {
 		_, err = bw.Write(b)
 		if err == nil {
@@ -167,29 +175,31 @@ func nutShowHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	d := make(ContentData)
 	c := appengine.NewContext(r)
-	apiCall := r.Header.Get("Accept") == "application/zip"
+	getNut := r.Header.Get("Accept") == "application/zip"
 
 	name := r.URL.Query().Get(":name")
-	version := r.URL.Query().Get(":version")
+	ver := r.URL.Query().Get(":version")
 
-	if name == "" || (version != "" && !nutp.VersionRegexp.MatchString(version)) {
-		panic(fmt.Sprint(r.URL.Query()))
+	if name == "" || (ver != "" && !nutp.VersionRegexp.MatchString(ver)) {
+		err := fmt.Errorf("Invalid name %q or version %q.", name, ver)
+		ServeJSONError(w, http.StatusBadRequest, err, d)
+		return
 	}
 
 	v := new(gonuts.Version)
 	var err error
-	if version == "" {
+	if ver == "" {
 		q := datastore.NewQuery("Version").Filter("NutName=", name).Order("-VersionNum").Limit(1)
 		_, err = q.Run(c).Next(v)
 	} else {
-		key := datastore.NewKey(c, "Version", fmt.Sprintf("%s-%s", name, version), 0, nil)
+		key := datastore.NewKey(c, "Version", fmt.Sprintf("%s-%s", name, ver), 0, nil)
 		err = datastore.Get(c, key, v)
 	}
 	gonuts.LogError(c, err)
 
 	var title string
 	if v.BlobKey != "" {
-		if apiCall {
+		if getNut {
 			blobstore.Send(w, v.BlobKey)
 			go func() {
 				v.Downloads++
@@ -207,11 +217,12 @@ func nutShowHandler(w http.ResponseWriter, r *http.Request) {
 		title = fmt.Sprintf("%s %s", v.NutName, v.Version)
 	} else {
 		w.WriteHeader(http.StatusNotFound)
-		if apiCall {
+		if getNut {
 			return
 		}
-		title = fmt.Sprintf("Nut %s %s not found", name, version)
+		title = fmt.Sprintf("Nut %s %s not found", name, ver)
 	}
+
 	var content bytes.Buffer
 	gonuts.PanicIfErr(Base.ExecuteTemplate(&content, "nut.html", d))
 
