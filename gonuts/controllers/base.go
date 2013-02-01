@@ -5,6 +5,7 @@ import (
 	_ "expvar"
 	"html/template"
 	"net/http"
+	_ "net/http/pprof"
 	"strings"
 
 	"gonuts"

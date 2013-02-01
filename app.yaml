@@ -27,8 +27,7 @@ handlers:
   upload: LICENSE
   mime_type: text/plain
 
-# /debug/vars
-- url: /debug/.*
+- url: /debug/(vars|pprof)
   script: _go_app
   login: admin
 
