@@ -1,5 +1,5 @@
 application: gonuts-io
-version: 1
+version: dev
 runtime: go
 api_version: go1
 
