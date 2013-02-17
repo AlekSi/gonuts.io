@@ -1,12 +1,12 @@
 package controllers
 
 import (
+	"appengine"
+	"appengine/datastore"
 	"fmt"
 	"net/http"
 	"time"
 
-	"appengine"
-	"appengine/datastore"
 	"gonuts"
 )
 
@@ -46,4 +46,7 @@ func ahCronSearchHandler(w http.ResponseWriter, r *http.Request) {
 	d["Message"] = m
 	ServeJSON(w, http.StatusOK, d)
 	return
+}
+
+func ahPrepareTestHandler(w http.ResponseWriter, r *http.Request) {
 }

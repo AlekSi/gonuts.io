@@ -1,15 +1,14 @@
 package gonuts
 
 import (
+	"appengine"
+	"appengine/urlfetch"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-
-	"appengine"
-	"appengine/urlfetch"
 )
 
 var (
@@ -67,12 +66,15 @@ func AddToSearchIndex(c appengine.Context, nut *Nut) (err error) {
 	return
 }
 
-func RemoveFromSearchIndex(c appengine.Context, nutName string) (err error) {
-	u := searchRemoveUrl
-	values := u.Query()
-	values.Set("nut_name", nutName)
-	u.RawQuery = values.Encode()
-	req, err := http.NewRequest("DELETE", u.String(), nil)
+func RemoveFromSearchIndex(c appengine.Context, nut *Nut) (err error) {
+	m := make(map[string]interface{})
+	m["Nut"] = nut
+	b, err := json.Marshal(m)
+	if err != nil {
+		return
+	}
+
+	req, err := http.NewRequest("DELETE", searchRemoveUrl.String(), bytes.NewReader(b))
 	if err != nil {
 		return
 	}
@@ -83,12 +85,13 @@ func RemoveFromSearchIndex(c appengine.Context, nutName string) (err error) {
 	if err == nil {
 		res.Body.Close()
 		if res.StatusCode != 204 {
-			err = fmt.Errorf("%s -> %d", u.String(), res.StatusCode)
+			err = fmt.Errorf("%s -> %d", searchRemoveUrl.String(), res.StatusCode)
 		}
 	}
 	return
 }
 
+// FIXME
 func SearchIndex(c appengine.Context, q string) (names []string, err error) {
 	client := urlfetch.Client(c)
 	u := searchFindUrl

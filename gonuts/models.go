@@ -1,13 +1,12 @@
 package gonuts
 
 import (
+	"appengine"
 	"crypto/rand"
 	"crypto/sha1"
 	"encoding/hex"
 	"io"
 	"time"
-
-	"appengine"
 )
 
 type User struct {
@@ -18,7 +17,8 @@ type User struct {
 
 // There StringID() equals nut name for fast gets, and Name equals nut name for sorting.
 type Nut struct {
-	// StringID (entity name, key name) is nut name
+	// StringID (entity name, key name) is "Vendor/Name"
+	Vendor       string
 	Name         string
 	Doc          string   // Doc of latest published version
 	UserStringID []string // slice of User.StringID
@@ -27,7 +27,8 @@ type Nut struct {
 
 // There StringID() contains nut name for fast gets, and NutName equals nut name for queries.
 type Version struct {
-	// StringID (entity name, key name) is "NutName-Version"
+	// StringID (entity name, key name) is "Vendor/NutName-Version"
+	Vendor     string
 	NutName    string
 	Version    string
 	VersionNum int // for sorting

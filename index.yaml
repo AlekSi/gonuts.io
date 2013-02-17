@@ -10,8 +10,14 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
+- kind: Nut
+  properties:
+  - name: Vendor
+  - name: Name
+
 - kind: Version
   properties:
   - name: NutName
+  - name: Vendor
   - name: VersionNum
     direction: desc

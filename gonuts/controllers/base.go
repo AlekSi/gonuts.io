@@ -8,8 +8,8 @@ import (
 	_ "net/http/pprof"
 	"strings"
 
+	"github.com/bmizerany/pat"
 	"gonuts"
-	"gopath/src/github.com/bmizerany/pat"
 )
 
 type ContentData map[string]interface{}
@@ -41,6 +41,7 @@ var (
 )
 
 func init() {
+	Router.Get("/_ah/test", http.HandlerFunc(ahPrepareTestHandler))
 	Router.Get("/_ah/cron/search", http.HandlerFunc(ahCronSearchHandler))
 	Router.Get("/_ah/", http.HandlerFunc(ahHandler))
 
@@ -51,9 +52,9 @@ func init() {
 	Router.Get("/-/me/register", http.HandlerFunc(registerHandler))
 	Router.Get("/-/nuts", http.HandlerFunc(nutsHandler))
 
-	Router.Put("/:name/:version", http.HandlerFunc(nutCreateHandler))
-	Router.Get("/:name/:version", http.HandlerFunc(nutShowHandler))
-	Router.Get("/:name", http.HandlerFunc(nutShowHandler))
+	Router.Put("/:vendor/:name/:version", http.HandlerFunc(nutCreateHandler))
+	Router.Get("/:vendor/:name/:version", http.HandlerFunc(nutShowHandler))
+	Router.Get("/:vendor/:name", http.HandlerFunc(nutShowHandler))
 
 	Router.Get("/", http.HandlerFunc(welcomeHandler))
 

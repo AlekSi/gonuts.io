@@ -8,19 +8,19 @@
 		{{.Doc}}
 	</p>
 	<p>
-		Install <a href="/{{.Name}}/{{.Version}}">this version</a>:
+		Install <a href="/{{.Vendor}}/{{.Name}}/{{.Version}}">this version</a>:
 <pre>
-nut get {{.Name}}/{{.Version}}
+nut get {{.Vendor}}/{{.Name}}/{{.Version}}
   -or-
-nut get gonuts.io/{{.Name}}/{{.Version}}
+nut get gonuts.io/{{.Vendor}}/{{.Name}}/{{.Version}}
 </pre>
 	</p>
 	<p>
-		Install <a href="/{{.Name}}">latest version</a>:
+		Install <a href="/{{.Vendor}}/{{.Name}}">latest version</a>:
 <pre>
-nut get {{.Name}}
+nut get {{.Vendor}}/{{.Name}}
   -or-
-nut get gonuts.io/{{.Name}}
+nut get gonuts.io/{{.Vendor}}/{{.Name}}
 </pre>
 	</p>
 {{end}}

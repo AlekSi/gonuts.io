@@ -1,13 +1,13 @@
 package controllers
 
 import (
+	"appengine"
+	"appengine/datastore"
+	"appengine/user"
 	"bytes"
 	"html/template"
 	"net/http"
 
-	"appengine"
-	"appengine/datastore"
-	"appengine/user"
 	"gonuts"
 )
 
