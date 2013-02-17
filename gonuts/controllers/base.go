@@ -55,6 +55,7 @@ func init() {
 	Router.Put("/:vendor/:name/:version", http.HandlerFunc(nutCreateHandler))
 	Router.Get("/:vendor/:name/:version", http.HandlerFunc(nutShowHandler))
 	Router.Get("/:vendor/:name", http.HandlerFunc(nutShowHandler))
+	Router.Get("/:vendor", http.HandlerFunc(nutsHandler))
 
 	Router.Get("/", http.HandlerFunc(welcomeHandler))
 

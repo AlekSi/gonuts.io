@@ -20,9 +20,14 @@ func nutsHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: no need to load all, then render all - replace with chunking
 	var nuts []gonuts.Nut
 	var err error
-	title := "All Nuts"
+	var title string
+	vendor := r.URL.Query().Get(":vendor")
 	q := r.URL.Query().Get("q")
-	if q == "" {
+	if vendor != "" {
+		title = fmt.Sprintf("%s's Nuts", vendor)
+		_, err = datastore.NewQuery("Nut").Filter("Vendor=", vendor).Order("Name").GetAll(c, &nuts)
+	} else if q == "" {
+		title = "All Nuts"
 		_, err = datastore.NewQuery("Nut").Order("Vendor").Order("Name").GetAll(c, &nuts)
 	} else {
 		title = fmt.Sprintf("Search %q", q)
