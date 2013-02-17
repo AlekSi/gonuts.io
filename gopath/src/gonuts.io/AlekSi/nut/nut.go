@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -21,6 +22,9 @@ func CheckPackage(pack *build.Package) (errors []string) {
 	}
 	if strings.HasPrefix(pack.Name, "_") {
 		errors = append(errors, `Package name should not starts with "_".`)
+	}
+	if strings.HasSuffix(pack.Name, "_") {
+		errors = append(errors, `Package name should not ends with "_".`)
 	}
 	if strings.HasSuffix(pack.Name, "_test") {
 		errors = append(errors, `Package name should not ends with "_test".`)
@@ -36,6 +40,8 @@ func CheckPackage(pack *build.Package) (errors []string) {
 }
 
 // Describes nut – a Go package with associated meta-information.
+// It embeds Spec and build.Package to provide easy access to properties:
+// Nut.Name instead of Nut.Package.Name, Nut.Version instead of Nut.Spec.Version.
 type Nut struct {
 	Spec
 	build.Package
@@ -53,8 +59,21 @@ func (nut *Nut) FileName() string {
 	return fmt.Sprintf("%s-%s.nut", nut.Name, nut.Version)
 }
 
-// Code "Nut.ReadFrom()" will call Nut.Spec.ReadFrom(), while programmer likely wanted to call NutFile.ReadFrom().
-// This method (with weird incompatible signature) is defined to prevent this typical error.
+// Returns canonical filepath in format <prefix>/<vendor>/<name>-<version>.nut
+// (with "\" instead of "/" on Windows).
+func (nut *Nut) FilePath(prefix string) string {
+	return filepath.Join(prefix, nut.Vendor, nut.FileName())
+}
+
+// Returns canonical import path in format <prefix>/<vendor>/<name>
+func (nut *Nut) ImportPath(prefix string) string {
+	return fmt.Sprintf("%s/%s/%s", prefix, nut.Vendor, nut.Name)
+}
+
+// Since Nut embeds Spec, code "Nut.ReadFrom()" will call Nut.Spec.ReadFrom(),
+// while programmer likely wanted to call NutFile.ReadFrom().
+// This method (with weird incompatible signature) is defined to prevent this typical error
+// (I sometimes do myself, yuck).
 func (nut *Nut) ReadFrom(Do, Not, Call bool) (do, not, call bool) {
 	panic("Nut.ReadFrom() called: call Nut.Spec.ReadFrom() or NutFile.ReadFrom()")
 }
