@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"net/url"
 
 	"appengine"
@@ -12,8 +13,9 @@ import (
 )
 
 var (
-	searchFindUrl url.URL
-	searchAddUrl  url.URL
+	searchFindUrl   url.URL
+	searchAddUrl    url.URL
+	searchRemoveUrl url.URL
 )
 
 func init() {
@@ -27,6 +29,10 @@ func init() {
 	searchAddUrl = searchFindUrl
 	searchAddUrl.Path = "/add"
 	searchAddUrl.RawQuery = fmt.Sprintf("token=%s", addSecretToken)
+
+	searchRemoveUrl = searchFindUrl
+	searchRemoveUrl.Path = "/remove"
+	searchRemoveUrl.RawQuery = fmt.Sprintf("token=%s", addSecretToken)
 }
 
 func LogError(c appengine.Context, err error) {
@@ -56,6 +62,28 @@ func AddToSearchIndex(c appengine.Context, nut *Nut) (err error) {
 		res.Body.Close()
 		if res.StatusCode != 201 {
 			err = fmt.Errorf("%s -> %d", searchAddUrl.String(), res.StatusCode)
+		}
+	}
+	return
+}
+
+func RemoveFromSearchIndex(c appengine.Context, nutName string) (err error) {
+	u := searchRemoveUrl
+	values := u.Query()
+	values.Set("nut_name", nutName)
+	u.RawQuery = values.Encode()
+	req, err := http.NewRequest("DELETE", u.String(), nil)
+	if err != nil {
+		return
+	}
+
+	client := urlfetch.Client(c)
+	res, err := client.Do(req)
+
+	if err == nil {
+		res.Body.Close()
+		if res.StatusCode != 204 {
+			err = fmt.Errorf("%s -> %d", u.String(), res.StatusCode)
 		}
 	}
 	return
