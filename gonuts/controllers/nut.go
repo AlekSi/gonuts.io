@@ -59,7 +59,7 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 	userID := userKeys[0].StringID()
 
 	// nut should belong to current user
-	nutKey := datastore.NewKey(c, "Nut", fmt.Sprintf("%s/%s", vendor, name), 0, nil)
+	nutKey := gonuts.NutKey(c, vendor, name)
 	nut := gonuts.Nut{Vendor: vendor, Name: name}
 	err = datastore.Get(c, nutKey, &nut)
 	if err == datastore.ErrNoSuchEntity {
@@ -81,7 +81,7 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// nut version should not exist
-	versionKey := datastore.NewKey(c, "Version", fmt.Sprintf("%s/%s-%s", vendor, name, ver), 0, nil)
+	versionKey := gonuts.VersionKey(c, vendor, name, ver)
 	version := gonuts.Version{Vendor: vendor, NutName: name, Version: ver, CreatedAt: time.Now()}
 	err = datastore.Get(c, versionKey, &version)
 	if err != nil && err != datastore.ErrNoSuchEntity {
@@ -194,7 +194,7 @@ func nutShowHandler(w http.ResponseWriter, r *http.Request) {
 		q := datastore.NewQuery("Version").Filter("Vendor=", vendor).Filter("NutName=", name).Order("-VersionNum").Limit(1)
 		_, err = q.Run(c).Next(v)
 	} else {
-		key := datastore.NewKey(c, "Version", fmt.Sprintf("%s/%s-%s", vendor, name, ver), 0, nil)
+		key := gonuts.VersionKey(c, vendor, name, ver)
 		err = datastore.Get(c, key, v)
 	}
 	gonuts.LogError(c, err)
@@ -205,7 +205,7 @@ func nutShowHandler(w http.ResponseWriter, r *http.Request) {
 			blobstore.Send(w, v.BlobKey)
 			go func() {
 				v.Downloads++
-				key := datastore.NewKey(c, "Version", fmt.Sprintf("%s/%s-%s", v.Vendor, v.NutName, v.Version), 0, nil)
+				key := gonuts.VersionKey(c, v.Vendor, v.NutName, v.Version)
 				_, err := datastore.Put(c, key, v)
 				gonuts.LogError(c, err)
 			}()
