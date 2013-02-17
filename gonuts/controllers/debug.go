@@ -38,7 +38,7 @@ func ahPrepareTestHandler(w http.ResponseWriter, r *http.Request) {
 			err = datastore.Delete(c, key)
 		}
 		if err == nil {
-			// err = gonuts.RemoveFromSearchIndex(c, &nut)
+			err = gonuts.RemoveFromSearchIndex(c, &nut)
 		}
 		if err != nil {
 			gonuts.LogError(c, err)

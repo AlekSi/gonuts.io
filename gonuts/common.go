@@ -54,8 +54,14 @@ func AddToSearchIndex(c appengine.Context, nut *Nut) (err error) {
 		return
 	}
 
+	req, err := http.NewRequest("POST", searchAddUrl.String(), bytes.NewReader(b))
+	if err != nil {
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+
 	client := urlfetch.Client(c)
-	res, err := client.Post(searchAddUrl.String(), "application/json", bytes.NewReader(b))
+	res, err := client.Do(req)
 
 	if err == nil {
 		res.Body.Close()
@@ -74,10 +80,11 @@ func RemoveFromSearchIndex(c appengine.Context, nut *Nut) (err error) {
 		return
 	}
 
-	req, err := http.NewRequest("DELETE", searchRemoveUrl.String(), bytes.NewReader(b))
+	req, err := http.NewRequest("POST", searchRemoveUrl.String(), bytes.NewReader(b))
 	if err != nil {
 		return
 	}
+	req.Header.Set("Content-Type", "application/json")
 
 	client := urlfetch.Client(c)
 	res, err := client.Do(req)
