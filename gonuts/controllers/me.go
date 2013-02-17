@@ -12,7 +12,6 @@ import (
 )
 
 func myHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
 	d := make(ContentData)
 	c := appengine.NewContext(r)
 	u := user.Current(c)
@@ -54,7 +53,6 @@ func myHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func registerHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
 	c := appengine.NewContext(r)
 	u := user.Current(c)
 	if u == nil || u.ID == "" {

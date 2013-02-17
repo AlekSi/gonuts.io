@@ -12,7 +12,6 @@ import (
 )
 
 func nutsHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
 	d := make(ContentData)
 	c := appengine.NewContext(r)
 	apiCall := r.Header.Get("Accept") == "application/json"

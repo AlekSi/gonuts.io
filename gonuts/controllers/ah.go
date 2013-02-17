@@ -11,7 +11,6 @@ import (
 )
 
 func ahHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
 	d := make(ContentData)
 
 	d["Message"] = "Hello from _ah."
@@ -21,7 +20,6 @@ func ahHandler(w http.ResponseWriter, r *http.Request) {
 
 func ahCronSearchHandler(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
-	defer r.Body.Close()
 	d := make(ContentData)
 	c := appengine.NewContext(r)
 
@@ -46,7 +44,4 @@ func ahCronSearchHandler(w http.ResponseWriter, r *http.Request) {
 	d["Message"] = m
 	ServeJSON(w, http.StatusOK, d)
 	return
-}
-
-func ahPrepareTestHandler(w http.ResponseWriter, r *http.Request) {
 }

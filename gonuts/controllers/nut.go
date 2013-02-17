@@ -17,7 +17,6 @@ import (
 )
 
 func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
 	d := make(ContentData)
 	c := appengine.NewContext(r)
 	ct := r.Header.Get("Content-Type")
@@ -118,9 +117,6 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// check nut
 	errors := nf.Check()
-	if nf.Vendor == "debug" {
-		errors = append(errors, "Vendor 'debug' is reserved.")
-	}
 	if len(errors) != 0 {
 		err = fmt.Errorf("%s", strings.Join(errors, "\n"))
 		ServeJSONError(w, http.StatusBadRequest, err, d)
@@ -173,7 +169,6 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func nutShowHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
 	d := make(ContentData)
 	c := appengine.NewContext(r)
 	getNut := r.Header.Get("Accept") == "application/zip"
