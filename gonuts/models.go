@@ -15,6 +15,7 @@ type User struct {
 	// StringID (entity name, key name) is appengine/user.User.ID
 	Email string
 	Token string
+	Debug bool
 }
 
 // There StringID() equals nut name for fast gets, and Name equals nut name for sorting.

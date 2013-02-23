@@ -44,7 +44,7 @@ func init() {
 	Router.Get("/_ah/cron/search", http.HandlerFunc(ahCronSearchHandler))
 	Router.Get("/_ah/", http.HandlerFunc(ahHandler))
 
-	Router.Get("/debug/prepare_test", http.HandlerFunc(ahPrepareTestHandler))
+	Router.Get("/debug/prepare_test", http.HandlerFunc(debugPrepareTestHandler))
 
 	Router.Get("/-/about", http.HandlerFunc(aboutHandler))
 	Router.Get("/-/doc", http.HandlerFunc(docHandler))
