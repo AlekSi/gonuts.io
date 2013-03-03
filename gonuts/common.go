@@ -98,8 +98,7 @@ func RemoveFromSearchIndex(c appengine.Context, nut *Nut) (err error) {
 	return
 }
 
-// FIXME
-func SearchIndex(c appengine.Context, q string) (names []string, err error) {
+func SearchIndex(c appengine.Context, q string) (pairs [][]string, err error) {
 	client := urlfetch.Client(c)
 	u := searchFindUrl
 	u.RawQuery = url.Values{"q": []string{q}}.Encode()
@@ -124,9 +123,10 @@ func SearchIndex(c appengine.Context, q string) (names []string, err error) {
 	}
 
 	nuts := m["Nuts"].([]interface{})
-	names = make([]string, len(nuts))
+	pairs = make([][]string, len(nuts))
 	for i, n := range nuts {
-		names[i] = n.(map[string]interface{})["Name"].(string)
+		nm := n.(map[string]interface{})
+		pairs[i] = []string{nm["Vendor"].(string), nm["Name"].(string)}
 	}
 	return
 }
