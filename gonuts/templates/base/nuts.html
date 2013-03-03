@@ -1,5 +1,14 @@
-<ul>
+<table class="dir">
+	<tr>
+		<th>Name</th>
+		<th>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<th>Synopsis</th>
+	</tr>
 	{{range .Nuts}}
-		<li><a href="/{{.Vendor}}/{{.Name}}"><code>{{.Vendor}}/{{.Name}}</code></a> – {{lower .Doc}}</li>
+	<tr>
+		<td><a href="/{{.Vendor}}/{{.Name}}"><code>{{.Vendor}}/{{.Name}}</code></a></td>
+		<td></td>
+		<td>{{.Doc}}</td>
+	</tr>
 	{{end}}
-</ul>
+</table>
