@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"net/http"
 	_ "net/http/pprof"
-	"strings"
 
 	"github.com/bmizerany/pat"
 	"gonuts"
@@ -37,7 +36,7 @@ func ServeJSONError(w http.ResponseWriter, code int, err error, d ContentData) {
 
 var (
 	Router = pat.New()
-	Base   = template.Must(template.ParseFiles("gonuts/templates/base.html"))
+	Base   *template.Template
 )
 
 func init() {
@@ -62,6 +61,6 @@ func init() {
 
 	http.Handle("/", Router)
 
-	Base.Funcs(map[string]interface{}{"lower": strings.ToLower})
+	Base = template.Must(template.ParseFiles("gonuts/templates/base.html"))
 	template.Must(Base.ParseGlob("gonuts/templates/base/*.html"))
 }
