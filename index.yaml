@@ -17,7 +17,7 @@ indexes:
 
 - kind: Version
   properties:
-  - name: NutName
+  - name: Name
   - name: Vendor
   - name: VersionNum
     direction: desc

@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	_ "expvar"
+	"fmt"
 	"html/template"
 	"net/http"
 	_ "net/http/pprof"
@@ -34,6 +35,12 @@ func ServeJSONError(w http.ResponseWriter, code int, err error, d ContentData) {
 	ServeJSON(w, code, d)
 }
 
+func WriteError(w http.ResponseWriter, code int, err error) {
+	w.WriteHeader(code)
+	_, err = w.Write([]byte(fmt.Sprintf("%s", err)))
+	gonuts.PanicIfErr(err)
+}
+
 var (
 	Router = pat.New()
 	Base   *template.Template
@@ -49,7 +56,8 @@ func init() {
 	Router.Get("/-/doc", http.HandlerFunc(docHandler))
 	Router.Get("/-/doc/:section", http.HandlerFunc(docHandler))
 	Router.Get("/-/me", http.HandlerFunc(myHandler))
-	Router.Get("/-/me/register", http.HandlerFunc(registerHandler))
+	Router.Post("/-/me/register", http.HandlerFunc(registerHandler))
+	Router.Get("/-/me/generate", http.HandlerFunc(generateHandler))
 	Router.Get("/-/nuts", http.HandlerFunc(nutsHandler))
 
 	Router.Put("/:vendor/:name/:version", http.HandlerFunc(nutCreateHandler))

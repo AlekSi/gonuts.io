@@ -32,7 +32,7 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get(":name")
 	ver := r.URL.Query().Get(":version")
 
-	if vendor == "" || name == "" || (ver != "" && !nutp.VersionRegexp.MatchString(ver)) {
+	if vendor == "" || !nutp.VendorRegexp.MatchString(vendor) || name == "" || (ver != "" && !nutp.VersionRegexp.MatchString(ver)) {
 		err := fmt.Errorf("Invalid vendor %q, name %q or version %q.", vendor, name, ver)
 		ServeJSONError(w, http.StatusBadRequest, err, d)
 		return
@@ -57,31 +57,36 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	userID := userKeys[0].StringID()
 
-	// nut should belong to current user
-	nutKey := gonuts.NutKey(c, vendor, name)
-	nut := gonuts.Nut{Vendor: vendor, Name: name}
-	err = datastore.Get(c, nutKey, &nut)
+	// user should belong to vendor
+	v := gonuts.Vendor{}
+	err = datastore.Get(c, gonuts.VendorKey(c, vendor), &v)
 	if err == datastore.ErrNoSuchEntity {
-		nut.UserStringID = []string{userID}
-	} else if err != nil {
+		err = fmt.Errorf("Can't find vendor %q.", vendor)
+		ServeJSONError(w, http.StatusNotFound, err, d)
+		return
+	}
+	if err != nil {
 		ServeJSONError(w, http.StatusInternalServerError, err, d)
 		return
 	}
 	found := false
-	for _, id := range nut.UserStringID {
+	for _, id := range v.UserStringID {
 		if id == userID {
 			found = true
 			break
 		}
 	}
 	if !found {
-		ServeJSONError(w, http.StatusForbidden, fmt.Errorf("Nut %s/%s already exists and belongs to another user.", vendor, name), d)
+		err = fmt.Errorf("You don't have publish access to vendor %q.", vendor)
+		ServeJSONError(w, http.StatusForbidden, err, d)
 		return
 	}
 
 	// nut version should not exist
+	nutKey := gonuts.NutKey(c, vendor, name)
+	nut := gonuts.Nut{Vendor: vendor, Name: name}
 	versionKey := gonuts.VersionKey(c, vendor, name, ver)
-	version := gonuts.Version{Vendor: vendor, NutName: name, Version: ver, CreatedAt: time.Now()}
+	version := gonuts.Version{Vendor: vendor, Name: name, Version: ver, CreatedAt: time.Now()}
 	err = datastore.Get(c, versionKey, &version)
 	if err != nil && err != datastore.ErrNoSuchEntity {
 		ServeJSONError(w, http.StatusInternalServerError, err, d)
@@ -122,8 +127,6 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 		ServeJSONError(w, http.StatusBadRequest, err, d)
 		return
 	}
-
-	// TODO wrap writes in transaction
 
 	// store nut blob
 	bw, err := blobstore.Create(c, ct)
@@ -177,7 +180,7 @@ func nutShowHandler(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get(":name")
 	ver := r.URL.Query().Get(":version")
 
-	if vendor == "" || name == "" || (ver != "" && !nutp.VersionRegexp.MatchString(ver)) {
+	if vendor == "" || !nutp.VendorRegexp.MatchString(vendor) || name == "" || (ver != "" && !nutp.VersionRegexp.MatchString(ver)) {
 		err := fmt.Errorf("Invalid vendor %q, name %q or version %q.", vendor, name, ver)
 		ServeJSONError(w, http.StatusBadRequest, err, d)
 		return
@@ -186,7 +189,7 @@ func nutShowHandler(w http.ResponseWriter, r *http.Request) {
 	v := new(gonuts.Version)
 	var err error
 	if ver == "" {
-		q := datastore.NewQuery("Version").Filter("Vendor=", vendor).Filter("NutName=", name).Order("-VersionNum").Limit(1)
+		q := datastore.NewQuery("Version").Filter("Vendor=", vendor).Filter("Name=", name).Order("-VersionNum").Limit(1)
 		_, err = q.Run(c).Next(v)
 	} else {
 		key := gonuts.VersionKey(c, vendor, name, ver)
@@ -200,7 +203,7 @@ func nutShowHandler(w http.ResponseWriter, r *http.Request) {
 			blobstore.Send(w, v.BlobKey)
 			go func() {
 				v.Downloads++
-				key := gonuts.VersionKey(c, v.Vendor, v.NutName, v.Version)
+				key := gonuts.VersionKey(c, v.Vendor, v.Name, v.Version)
 				_, err := datastore.Put(c, key, v)
 				gonuts.LogError(c, err)
 			}()
@@ -208,11 +211,11 @@ func nutShowHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		d["Vendor"] = v.Vendor
-		d["Name"] = v.NutName
+		d["Name"] = v.Name
 		d["Version"] = v.Version
 		d["Doc"] = v.Doc
 		d["Homepage"] = v.Homepage
-		title = fmt.Sprintf("%s/%s %s", v.Vendor, v.NutName, v.Version)
+		title = fmt.Sprintf("%s/%s %s", v.Vendor, v.Name, v.Version)
 	} else {
 		w.WriteHeader(http.StatusNotFound)
 		if getNut {
