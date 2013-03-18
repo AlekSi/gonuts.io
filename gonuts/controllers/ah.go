@@ -3,6 +3,7 @@ package controllers
 import (
 	"appengine"
 	"appengine/datastore"
+	"appengine/user"
 	"fmt"
 	"net/http"
 	"time"
@@ -15,6 +16,24 @@ func ahHandler(w http.ResponseWriter, r *http.Request) {
 
 	d["Message"] = "Hello from _ah."
 	ServeJSON(w, http.StatusOK, d)
+	return
+}
+
+func ahAdHoc(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	u := user.Current(c)
+	user := new(gonuts.User)
+	gonuts.PanicIfErr(datastore.Get(c, gonuts.UserKey(c, u), user))
+
+	vendor := &gonuts.Vendor{Vendor: "debug"}
+	user.AddVendor(vendor)
+	_, err := datastore.Put(c, gonuts.VendorKey(c, "debug"), vendor)
+	gonuts.PanicIfErr(err)
+	_, err = datastore.Put(c, gonuts.UserKey(c, u), user)
+	gonuts.PanicIfErr(err)
+
+	w.Write([]byte(fmt.Sprintf("%#v\n", user)))
+	w.Write([]byte(fmt.Sprintf("%#v\n", vendor)))
 	return
 }
 
