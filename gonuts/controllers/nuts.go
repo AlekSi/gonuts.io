@@ -1,18 +1,17 @@
 package controllers
 
 import (
+	"appengine"
+	"appengine/datastore"
 	"bytes"
 	"fmt"
 	"html/template"
 	"net/http"
 
-	"appengine"
-	"appengine/datastore"
 	"gonuts"
 )
 
 func nutsHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
 	d := make(ContentData)
 	c := appengine.NewContext(r)
 	apiCall := r.Header.Get("Accept") == "application/json"
@@ -20,18 +19,22 @@ func nutsHandler(w http.ResponseWriter, r *http.Request) {
 	// TODO: no need to load all, then render all - replace with chunking
 	var nuts []gonuts.Nut
 	var err error
-	title := "All Nuts"
+	var title string
+	vendor := r.URL.Query().Get(":vendor")
 	q := r.URL.Query().Get("q")
-	if q == "" {
-		_, err = datastore.NewQuery("Nut").Order("Name").GetAll(c, &nuts)
+	if vendor != "" {
+		title = fmt.Sprintf("%s's Nuts", vendor)
+		_, err = datastore.NewQuery("Nut").Filter("Vendor=", vendor).Order("Name").GetAll(c, &nuts)
+	} else if q == "" {
+		title = "All Nuts"
+		_, err = datastore.NewQuery("Nut").Order("Vendor").Order("Name").GetAll(c, &nuts)
 	} else {
 		title = fmt.Sprintf("Search %q", q)
-		names, err := gonuts.SearchIndex(c, q)
+		res, err := gonuts.SearchIndex(c, q)
 		gonuts.LogError(c, err)
-
-		keys := make([]*datastore.Key, len(names))
-		for i, name := range names {
-			keys[i] = datastore.NewKey(c, "Nut", name, 0, nil)
+		keys := make([]*datastore.Key, len(res))
+		for i, pair := range res {
+			keys[i] = gonuts.NutKey(c, pair[0], pair[1])
 		}
 		nuts = make([]gonuts.Nut, len(keys))
 		err = datastore.GetMulti(c, keys, nuts)

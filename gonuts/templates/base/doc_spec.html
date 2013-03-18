@@ -1,0 +1,31 @@
+<h2>Nut specification</h2>
+
+Nut metadata is stored in two places. Standard Go entities like package name and import path are accessible via standard package <a href="http://golang.org/pkg/go/build/"><code>go/build</code></a>. The rest is stored in file called <code>nut.json</code>, which can be created and updated with <code>nut generate</code> command. This document defines its format.
+
+<pre>
+{
+  "Version": "0.3.0",
+  "Vendor": "aleksi",
+  "Authors": [
+    {
+      "FullName": "Alexey Palazhchenko",
+      "Email": "alexey.palazhchenko@gmail.com"
+    }
+  ],
+  "ExtraFiles": [
+    "CHANGELOG",
+    "CONTRIBUTING.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "Homepage": "http://www.gonuts.io/"
+}
+</pre>
+
+<ul>
+	<li>Version defines nut version according to <a href="/-/doc/versioning">specification</a>.</li>
+	<li>Vendor FIXME</li>
+	<li>Author defines nut authors and maintainers. Each array element is a FIXME</li>
+	<li>ExtraFiles defines an array of files which are a part of nut, but do not contain code and therefore are not a part of Go package.</li>
+	<li>Homepage defines nut's homepage in a form of HTTP/HTTPS URL.</li>
+</ul>

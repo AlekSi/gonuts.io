@@ -1,17 +1,16 @@
 package controllers
 
 import (
+	"appengine"
+	"appengine/datastore"
 	"fmt"
 	"net/http"
 	"time"
 
-	"appengine"
-	"appengine/datastore"
 	"gonuts"
 )
 
 func ahHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
 	d := make(ContentData)
 
 	d["Message"] = "Hello from _ah."
@@ -21,7 +20,6 @@ func ahHandler(w http.ResponseWriter, r *http.Request) {
 
 func ahCronSearchHandler(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
-	defer r.Body.Close()
 	d := make(ContentData)
 	c := appengine.NewContext(r)
 

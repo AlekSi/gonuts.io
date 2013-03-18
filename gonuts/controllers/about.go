@@ -9,7 +9,6 @@ import (
 )
 
 func aboutHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
 	var content bytes.Buffer
 	gonuts.PanicIfErr(Base.ExecuteTemplate(&content, "about.html", ""))
 

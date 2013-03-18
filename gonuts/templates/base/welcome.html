@@ -1,27 +1,11 @@
 <p>
-	{{if .VersionCount}}
-		Serving {{.VersionCount}} versions
-	{{else}}
-		Serving many versions
-	{{end}}
-
-	{{if .NutsCount}}
-		of {{.NutsCount}} nuts
-	{{else}}
-		of many nuts
-	{{end}}
-
-	{{if .UsersCount}}
-		published by {{.UsersCount}} registered users.
-	{{else}}
-		published by registered users.
-	{{end}}
+	Serving {{.VersionCount}} versions of {{.NutsCount}} nuts published by {{.UsersCount}} registered users.
 </p>
 
 <p>
 	Install <code>nut</code> tool:
 <pre>
-go get -u github.com/AlekSi/nut/nut
+go get -u github.com/AlekSi/nut/...
 touch ~/.nut.json
 nut help
 </pre>

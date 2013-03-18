@@ -10,7 +10,6 @@ import (
 )
 
 func docHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
 	var content bytes.Buffer
 
 	section := r.URL.Query().Get(":section")

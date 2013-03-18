@@ -6,12 +6,29 @@
 			You are logged in and registered with Google account <code>{{.Email}}</code>. <a href="{{.LogoutURL}}">Logout</a>.
 		</p>
 		<p>
-			Your access token is <code>{{.Token}}</code>. <a href="{{.RegisterURL}}">Regenerate</a>.
+			Your access token is <code>{{.Token}}</code>. <a href="{{.GenerateURL}}">Regenerate</a>.
+		</p>
+		<p>
+			You have publish access to following vendors:
+			<ul>
+				{{range .Vendors}}
+					<li>{{.}}</li>
+				{{end}}
+			</ul>
 		</p>
 	{{else}}
 		<p>
-			You are logged in but not registered with Google account <code>{{.Email}}</code>.
-			<a href="{{.RegisterURL}}">Register</a> or <a href="{{.LogoutURL}}">logout</a> and use different Google account.
+			You are logged in with Google account <code>{{.Email}}</code> but not registered yet.
+		</p>
+		<p>
+			Choose vendor (user) name.
+			<form method="POST" action="{{.RegisterURL}}">
+				<input type="text" name="vendor" value="">
+				<input type="submit" value="Register">
+			</form>
+		</p>
+		<p>
+			Or <a href="{{.LogoutURL}}">logout</a> and use different Google account.
 		</p>
 	{{end}}
 {{end}}

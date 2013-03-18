@@ -1,6 +1,9 @@
 package controllers
 
 import (
+	"appengine"
+	"appengine/blobstore"
+	"appengine/datastore"
 	"bytes"
 	"fmt"
 	"html/template"
@@ -9,15 +12,11 @@ import (
 	"strings"
 	"time"
 
-	"appengine"
-	"appengine/blobstore"
-	"appengine/datastore"
 	"gonuts"
-	nutp "gopath/src/gonuts.io/nut/0.2.0"
+	nutp "gonuts.io/AlekSi/nut"
 )
 
 func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
 	d := make(ContentData)
 	c := appengine.NewContext(r)
 	ct := r.Header.Get("Content-Type")
@@ -29,11 +28,12 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	vendor := r.URL.Query().Get(":vendor")
 	name := r.URL.Query().Get(":name")
 	ver := r.URL.Query().Get(":version")
 
-	if name == "" || (ver != "" && !nutp.VersionRegexp.MatchString(ver)) {
-		err := fmt.Errorf("Invalid name %q or version %q.", name, ver)
+	if vendor == "" || !nutp.VendorRegexp.MatchString(vendor) || name == "" || (ver != "" && !nutp.VersionRegexp.MatchString(ver)) {
+		err := fmt.Errorf("Invalid vendor %q, name %q or version %q.", vendor, name, ver)
 		ServeJSONError(w, http.StatusBadRequest, err, d)
 		return
 	}
@@ -57,38 +57,43 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	userID := userKeys[0].StringID()
 
-	// nut should belong to current user
-	nutKey := datastore.NewKey(c, "Nut", name, 0, nil)
-	nut := gonuts.Nut{Name: name}
-	err = datastore.Get(c, nutKey, &nut)
+	// user should belong to vendor
+	v := gonuts.Vendor{}
+	err = datastore.Get(c, gonuts.VendorKey(c, vendor), &v)
 	if err == datastore.ErrNoSuchEntity {
-		nut.UserStringID = []string{userID}
-	} else if err != nil {
+		err = fmt.Errorf("Can't find vendor %q.", vendor)
+		ServeJSONError(w, http.StatusNotFound, err, d)
+		return
+	}
+	if err != nil {
 		ServeJSONError(w, http.StatusInternalServerError, err, d)
 		return
 	}
 	found := false
-	for _, id := range nut.UserStringID {
+	for _, id := range v.UserStringID {
 		if id == userID {
 			found = true
 			break
 		}
 	}
 	if !found {
-		ServeJSONError(w, http.StatusForbidden, fmt.Errorf("Nut %q already exists and belongs to another user.", name), d)
+		err = fmt.Errorf("You don't have publish access to vendor %q.", vendor)
+		ServeJSONError(w, http.StatusForbidden, err, d)
 		return
 	}
 
 	// nut version should not exist
-	versionKey := datastore.NewKey(c, "Version", fmt.Sprintf("%s-%s", name, ver), 0, nil)
-	version := gonuts.Version{NutName: name, Version: ver, CreatedAt: time.Now()}
+	nutKey := gonuts.NutKey(c, vendor, name)
+	nut := gonuts.Nut{Vendor: vendor, Name: name}
+	versionKey := gonuts.VersionKey(c, vendor, name, ver)
+	version := gonuts.Version{Vendor: vendor, Name: name, Version: ver, CreatedAt: time.Now()}
 	err = datastore.Get(c, versionKey, &version)
 	if err != nil && err != datastore.ErrNoSuchEntity {
 		ServeJSONError(w, http.StatusInternalServerError, err, d)
 		return
 	}
 	if err == nil {
-		ServeJSONError(w, http.StatusConflict, fmt.Errorf("Nut %q version %q already exists.", name, ver), d)
+		ServeJSONError(w, http.StatusConflict, fmt.Errorf("Nut %s/%s version %s already exists.", vendor, name, ver), d)
 		return
 	}
 
@@ -107,26 +112,21 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 	version.Homepage = nf.Homepage
 	version.VersionNum = nf.Version.Major*1000000 + nf.Version.Minor*1000 + nf.Version.Patch // for sorting
 
-	// check name and version match
-	if nf.Name != name || nf.Version.String() != ver {
-		err = fmt.Errorf("Nut name %q and version %q from URL don't match found in body: %q %q.",
-			name, ver, nf.Name, nf.Version.String())
+	// check vendor, name and version match
+	if nf.Vendor != vendor || nf.Name != name || nf.Version.String() != ver {
+		err = fmt.Errorf("Nut vendor %q, name %q and version %q from URL don't match found in body: %q %q %q.",
+			vendor, name, ver, nf.Vendor, nf.Name, nf.Version.String())
 		ServeJSONError(w, http.StatusBadRequest, err, d)
 		return
 	}
 
 	// check nut
 	errors := nf.Check()
-	if nf.Name == "debug" {
-		errors = append(errors, "Name 'debug' is reserved.")
-	}
 	if len(errors) != 0 {
 		err = fmt.Errorf("%s", strings.Join(errors, "\n"))
 		ServeJSONError(w, http.StatusBadRequest, err, d)
 		return
 	}
-
-	// TODO wrap writes in transaction
 
 	// store nut blob
 	bw, err := blobstore.Create(c, ct)
@@ -166,22 +166,22 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	// done!
-	d["Message"] = fmt.Sprintf("Nut %q version %q published.", name, ver)
+	d["Message"] = fmt.Sprintf("Nut %s/%s version %s published.", vendor, name, ver)
 	ServeJSON(w, http.StatusCreated, d)
 	return
 }
 
 func nutShowHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
 	d := make(ContentData)
 	c := appengine.NewContext(r)
 	getNut := r.Header.Get("Accept") == "application/zip"
 
+	vendor := r.URL.Query().Get(":vendor")
 	name := r.URL.Query().Get(":name")
 	ver := r.URL.Query().Get(":version")
 
-	if name == "" || (ver != "" && !nutp.VersionRegexp.MatchString(ver)) {
-		err := fmt.Errorf("Invalid name %q or version %q.", name, ver)
+	if vendor == "" || !nutp.VendorRegexp.MatchString(vendor) || name == "" || (ver != "" && !nutp.VersionRegexp.MatchString(ver)) {
+		err := fmt.Errorf("Invalid vendor %q, name %q or version %q.", vendor, name, ver)
 		ServeJSONError(w, http.StatusBadRequest, err, d)
 		return
 	}
@@ -189,10 +189,10 @@ func nutShowHandler(w http.ResponseWriter, r *http.Request) {
 	v := new(gonuts.Version)
 	var err error
 	if ver == "" {
-		q := datastore.NewQuery("Version").Filter("NutName=", name).Order("-VersionNum").Limit(1)
+		q := datastore.NewQuery("Version").Filter("Vendor=", vendor).Filter("Name=", name).Order("-VersionNum").Limit(1)
 		_, err = q.Run(c).Next(v)
 	} else {
-		key := datastore.NewKey(c, "Version", fmt.Sprintf("%s-%s", name, ver), 0, nil)
+		key := gonuts.VersionKey(c, vendor, name, ver)
 		err = datastore.Get(c, key, v)
 	}
 	gonuts.LogError(c, err)
@@ -203,24 +203,25 @@ func nutShowHandler(w http.ResponseWriter, r *http.Request) {
 			blobstore.Send(w, v.BlobKey)
 			go func() {
 				v.Downloads++
-				key := datastore.NewKey(c, "Version", fmt.Sprintf("%s-%s", v.NutName, v.Version), 0, nil)
+				key := gonuts.VersionKey(c, v.Vendor, v.Name, v.Version)
 				_, err := datastore.Put(c, key, v)
 				gonuts.LogError(c, err)
 			}()
 			return
 		}
 
-		d["Name"] = v.NutName
+		d["Vendor"] = v.Vendor
+		d["Name"] = v.Name
 		d["Version"] = v.Version
 		d["Doc"] = v.Doc
 		d["Homepage"] = v.Homepage
-		title = fmt.Sprintf("%s %s", v.NutName, v.Version)
+		title = fmt.Sprintf("%s/%s %s", v.Vendor, v.Name, v.Version)
 	} else {
 		w.WriteHeader(http.StatusNotFound)
 		if getNut {
 			return
 		}
-		title = fmt.Sprintf("Nut %s %s not found", name, ver)
+		title = fmt.Sprintf("Nut %s/%s version %s not found", vendor, name, ver)
 	}
 
 	var content bytes.Buffer

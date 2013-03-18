@@ -1,5 +1,5 @@
 GOPATH:=$(shell pwd)/gopath
-SDKROOT:=/usr/local/Cellar/go-app-engine-64/1.7.4/share/go-app-engine-64
+SDKROOT:=/usr/local/Cellar/go-app-engine-64/1.7.5/share/go-app-engine-64
 
 GOFILES:=$(shell find . -name *.go)
 
@@ -25,5 +25,9 @@ run: fvb
 run_clean: fvb
 	$(SDKROOT)/dev_appserver.py --skip_sdk_update_check --use_sqlite --clear_datastore .
 
-deploy: fvb
+check_clean:
+	git diff-index --exit-code HEAD
+	u="$$(git ls-files --others --exclude-standard)" && echo $$u && test -z "$$u"
+
+deploy: fvb check_clean
 	$(SDKROOT)/appcfg.py --oauth2 update .
