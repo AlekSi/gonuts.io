@@ -70,18 +70,48 @@ func (nut *Nut) ImportPath(prefix string) string {
 	return fmt.Sprintf("%s/%s/%s", prefix, nut.Vendor, nut.Name)
 }
 
-// Since Nut embeds Spec, code "Nut.ReadFrom()" will call Nut.Spec.ReadFrom(),
-// while programmer likely wanted to call NutFile.ReadFrom().
-// This method (with weird incompatible signature) is defined to prevent this typical error
-// (I sometimes do myself, yuck).
-func (nut *Nut) ReadFrom(Do, Not, Call bool) (do, not, call bool) {
-	panic("Nut.ReadFrom() called: call Nut.Spec.ReadFrom() or NutFile.ReadFrom()")
+// Read nut from directory: package from <dir> and spec from <dir>/<SpecFileName>.
+func (nut *Nut) ReadFrom(dir string) (err error) {
+	// This method is called ReadFrom to prevent code n.ReadFrom(r) from calling n.Spec.ReadFrom(r).
+
+	// read package
+	pack, err := build.ImportDir(dir, 0)
+	if err != nil {
+		return
+	}
+	nut.Package = *pack
+
+	// read spec
+	f, err := os.Open(filepath.Join(dir, SpecFileName))
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	_, err = nut.Spec.ReadFrom(f)
+	return
 }
 
 // Describes .nut file (a ZIP archive).
 type NutFile struct {
 	Nut
 	Reader *zip.Reader
+}
+
+// check interface
+var (
+	_ io.ReaderFrom = &NutFile{}
+)
+
+// Reads nut from specified file.
+func (nf *NutFile) ReadFile(fileName string) (err error) {
+	f, err := os.Open(fileName)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	_, err = nf.ReadFrom(f)
+	return
 }
 
 // ReadFrom reads nut from r until EOF.
@@ -131,6 +161,9 @@ func (nf *NutFile) ReadFrom(r io.Reader) (n int64, err error) {
 
 	// read package
 	pack, err := nf.context().ImportDir(".", 0)
+	if err != nil {
+		return
+	}
 	nf.Package = *pack
 	return
 }
