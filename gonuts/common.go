@@ -115,6 +115,7 @@ func SearchIndex(c appengine.Context, q string) (pairs [][]string, err error) {
 	if err != nil {
 		return
 	}
+	c.Infof("Response from search: %s", b)
 
 	m := make(map[string]interface{})
 	err = json.Unmarshal(b, &m)
