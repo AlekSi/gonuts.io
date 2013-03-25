@@ -1,0 +1,38 @@
+<h2>How to…</h2>
+
+<h3>Install nut tool</h3>
+
+Make sure your <a href="http://golang.org/doc/code.html#tmp_2">GOPATH</a> is correct (check output of <code>go env</code>). Then type
+<pre>
+go get -u github.com/AlekSi/nut/...
+</pre>
+It will install nut binary into <code>$GOPATH/bin</code>. Then it's a nice idea to create empty config file <code>~/.nut.json</code> – it will be updated by nut tool.
+<pre>
+touch ~/.nut.json
+</pre>
+
+Check installation with
+<pre>
+nut help
+</pre>
+
+<h3>Install a nut</h3>
+
+<pre>
+nut get gonuts.io/vendor/nut
+</pre>
+to install latest version, or
+<pre>
+nut get gonuts.io/vendor/nut/version
+</pre>
+to install specific version. In both cases <code>gonuts.io/</code> is optional. Package will be installed into <code>$GOPATH/src/gonuts.io/vendor/nut</code>, import path is <code>gonuts.io/vendor/nut</code>.
+
+<h3>Publish a nut</h3>
+
+To publish a package as nut on gonuts.io you should:
+<ul>
+	<li><a href="/-/me">register</a> on this site, choose a vendor name and copy access token to <code>~/.nut.json</code>;</li>
+	<li>run <code>nut generate</code> inside package directory to generate <a href="/-/doc/spec"><code>spec.json</code></a>, edit it;</li>
+	<li>run <code>nut pack</code>;</li>
+	<li>run <code>nut publish [filename]</code>.</li>
+</ul>
