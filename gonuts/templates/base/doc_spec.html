@@ -18,14 +18,14 @@ Nut metadata is stored in two places. Standard Go entities like package name and
     "LICENSE",
     "README.md"
   ],
-  "Homepage": "http://www.gonuts.io/"
+  "Homepage": "http://gonuts.io/"
 }
 </pre>
 
 <ul>
 	<li>Version defines nut version according to <a href="/-/doc/versioning">specification</a>.</li>
-	<li>Vendor FIXME</li>
-	<li>Author defines nut authors and maintainers. Each array element is a FIXME</li>
+	<li>Vendor is a user or project name. Together with package name it forms a nut URL: <code>gonuts.io/aleksi/nut</code></li>
+	<li>Author defines nut authors and maintainers. Each array element contains full name and optional e-mail.</li>
 	<li>ExtraFiles defines an array of files which are a part of nut, but do not contain code and therefore are not a part of Go package.</li>
 	<li>Homepage defines nut's homepage in a form of HTTP/HTTPS URL.</li>
 </ul>
