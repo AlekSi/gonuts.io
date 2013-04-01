@@ -3,14 +3,16 @@
 </p>
 
 <p>
-	Serving {{.VersionCount}} versions of {{.NutsCount}} nuts published by {{.UsersCount}} registered users.
+	Serving <span id="version-count">{{.VersionCount}}</span> versions
+	of <span id="nuts-count">{{.NutsCount}}</span> nuts
+	published by <span id="users-count">{{.UsersCount}}</span> registered users.
 </p>
 
 <p>
 	Install <code>nut</code> tool:
+</p>
 <pre>
 go get -u github.com/AlekSi/nut/...
 touch ~/.nut.json
 nut help
 </pre>
-</p>
