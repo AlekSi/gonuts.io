@@ -1,5 +1,5 @@
 GOPATH:=$(shell pwd)/gopath
-SDKROOT:=/usr/local/Cellar/go-app-engine-64/1.7.6/share/go-app-engine-64
+SDKROOT:=/usr/local/Cellar/go-app-engine-64/1.7.7/share/go-app-engine-64
 
 GOFILES:=$(shell find . -name *.go)
 
@@ -20,10 +20,10 @@ fvb:
 	$(SDKROOT)/goroot/bin/go-app-builder -goroot=$(SDKROOT)/goroot -dynamic -unsafe $(GOFILES)
 
 run: fvb
-	$(SDKROOT)/dev_appserver.py --skip_sdk_update_check --use_sqlite .
+	$(SDKROOT)/dev_appserver.py --skip_sdk_update_check=yes .
 
 run_clean: fvb
-	$(SDKROOT)/dev_appserver.py --skip_sdk_update_check --use_sqlite --clear_datastore .
+	$(SDKROOT)/dev_appserver.py --skip_sdk_update_check=yes --clear_datastore=yes .
 
 check_clean:
 	git diff-index --exit-code HEAD
