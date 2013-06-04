@@ -11,6 +11,9 @@ prepare:
 	go get -u github.com/bmizerany/pat
 	rm -fr $(GOPATH)/src/github.com/bmizerany/pat/.git
 	rm -fr $(GOPATH)/src/github.com/bmizerany/pat/example
+	go get -u github.com/mjibson/appstats
+	rm -fr $(GOPATH)/src/github.com/mjibson/appstats/.git
+	rm -fr $(GOPATH)/src/code.google.com
 	nut get -v aleksi/nut
 
 # format, vet, build
