@@ -9,9 +9,8 @@ import (
 	"gonuts"
 )
 
-func debugPrepareTestHandler(w http.ResponseWriter, r *http.Request) {
+func debugPrepareTestHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 	d := make(ContentData)
-	c := appengine.NewContext(r)
 
 	// extract token from request
 	token := r.URL.Query().Get("token")

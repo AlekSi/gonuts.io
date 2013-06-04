@@ -16,9 +16,8 @@ import (
 	nutp "gonuts.io/AlekSi/nut"
 )
 
-func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
+func nutCreateHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 	d := make(ContentData)
-	c := appengine.NewContext(r)
 	ct := r.Header.Get("Content-Type")
 	putNut := ct == "application/zip"
 
@@ -171,9 +170,8 @@ func nutCreateHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func nutShowHandler(w http.ResponseWriter, r *http.Request) {
+func nutShowHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 	d := make(ContentData)
-	c := appengine.NewContext(r)
 	getNut := r.Header.Get("Accept") == "application/zip"
 
 	vendor := r.URL.Query().Get(":vendor")

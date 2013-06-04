@@ -13,9 +13,8 @@ import (
 	nutp "gonuts.io/AlekSi/nut"
 )
 
-func myHandler(w http.ResponseWriter, r *http.Request) {
+func myHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 	d := make(ContentData)
-	c := appengine.NewContext(r)
 	u := gaeuser.Current(c)
 
 	if u == nil || u.ID == "" {
@@ -55,8 +54,7 @@ func myHandler(w http.ResponseWriter, r *http.Request) {
 	gonuts.PanicIfErr(Base.Execute(w, &bd))
 }
 
-func registerHandler(w http.ResponseWriter, r *http.Request) {
-	c := appengine.NewContext(r)
+func registerHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 	u := gaeuser.Current(c)
 	if u != nil && u.ID != "" {
 		var err error
@@ -102,8 +100,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/-/me", 303)
 }
 
-func generateHandler(w http.ResponseWriter, r *http.Request) {
-	c := appengine.NewContext(r)
+func generateHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 	u := gaeuser.Current(c)
 	if u != nil && u.ID != "" {
 		key := gonuts.UserKey(c, u)

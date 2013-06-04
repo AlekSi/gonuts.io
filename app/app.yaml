@@ -31,7 +31,11 @@ handlers:
   script: _go_app
   login: admin
 
-- url: /_ah/cron
+- url: /_ah/cron/.*
+  script: _go_app
+  login: admin
+
+- url: /_ah/stats/.*
   script: _go_app
   login: admin
 

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"appengine"
 	"bytes"
 	"fmt"
 	"html/template"
@@ -9,7 +10,7 @@ import (
 	"gonuts"
 )
 
-func docHandler(w http.ResponseWriter, r *http.Request) {
+func docHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 	var content bytes.Buffer
 
 	section := r.URL.Query().Get(":section")

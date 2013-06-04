@@ -9,6 +9,7 @@ import (
 	_ "net/http/pprof"
 
 	"github.com/bmizerany/pat"
+	"github.com/mjibson/appstats"
 	"gonuts"
 )
 
@@ -47,25 +48,25 @@ var (
 )
 
 func init() {
-	Router.Get("/_ah/cron/search", http.HandlerFunc(ahCronSearchHandler))
-	Router.Get("/_ah/", http.HandlerFunc(ahHandler))
+	Router.Get("/_ah/cron/search", appstats.NewHandler(ahCronSearchHandler))
+	Router.Get("/_ah/", appstats.NewHandler(ahHandler))
 
-	Router.Get("/debug/prepare_test", http.HandlerFunc(debugPrepareTestHandler))
+	Router.Get("/debug/prepare_test", appstats.NewHandler(debugPrepareTestHandler))
 
-	Router.Get("/-/about", http.HandlerFunc(aboutHandler))
-	Router.Get("/-/doc", http.HandlerFunc(docHandler))
-	Router.Get("/-/doc/:section", http.HandlerFunc(docHandler))
-	Router.Get("/-/me", http.HandlerFunc(myHandler))
-	Router.Post("/-/me/register", http.HandlerFunc(registerHandler))
-	Router.Get("/-/me/generate", http.HandlerFunc(generateHandler))
-	Router.Get("/-/nuts", http.HandlerFunc(nutsHandler))
+	Router.Get("/-/about", appstats.NewHandler(aboutHandler))
+	Router.Get("/-/doc", appstats.NewHandler(docHandler))
+	Router.Get("/-/doc/:section", appstats.NewHandler(docHandler))
+	Router.Get("/-/me", appstats.NewHandler(myHandler))
+	Router.Post("/-/me/register", appstats.NewHandler(registerHandler))
+	Router.Get("/-/me/generate", appstats.NewHandler(generateHandler))
+	Router.Get("/-/nuts", appstats.NewHandler(nutsHandler))
 
-	Router.Put("/:vendor/:name/:version", http.HandlerFunc(nutCreateHandler))
-	Router.Get("/:vendor/:name/:version", http.HandlerFunc(nutShowHandler))
-	Router.Get("/:vendor/:name", http.HandlerFunc(nutShowHandler))
-	Router.Get("/:vendor", http.HandlerFunc(nutsHandler))
+	Router.Put("/:vendor/:name/:version", appstats.NewHandler(nutCreateHandler))
+	Router.Get("/:vendor/:name/:version", appstats.NewHandler(nutShowHandler))
+	Router.Get("/:vendor/:name", appstats.NewHandler(nutShowHandler))
+	Router.Get("/:vendor", appstats.NewHandler(nutsHandler))
 
-	Router.Get("/", http.HandlerFunc(welcomeHandler))
+	Router.Get("/", appstats.NewHandler(welcomeHandler))
 
 	http.Handle("/", Router)
 
