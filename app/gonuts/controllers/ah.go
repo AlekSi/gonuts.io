@@ -10,7 +10,7 @@ import (
 	"gonuts"
 )
 
-func ahHandler(w http.ResponseWriter, r *http.Request) {
+func ahHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 	d := make(ContentData)
 
 	d["Message"] = "Hello from _ah."
@@ -18,10 +18,9 @@ func ahHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func ahCronSearchHandler(w http.ResponseWriter, r *http.Request) {
+func ahCronSearchHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 	d := make(ContentData)
-	c := appengine.NewContext(r)
 
 	var nut gonuts.Nut
 	for i := datastore.NewQuery("Nut").Run(c); ; {

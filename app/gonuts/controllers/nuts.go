@@ -11,9 +11,8 @@ import (
 	"gonuts"
 )
 
-func nutsHandler(w http.ResponseWriter, r *http.Request) {
+func nutsHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 	d := make(ContentData)
-	c := appengine.NewContext(r)
 	apiCall := r.Header.Get("Accept") == "application/json"
 
 	// TODO: no need to load all, then render all - replace with chunking

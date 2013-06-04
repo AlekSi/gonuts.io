@@ -10,9 +10,8 @@ import (
 	"gonuts"
 )
 
-func welcomeHandler(w http.ResponseWriter, r *http.Request) {
+func welcomeHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 	d := make(ContentData)
-	c := appengine.NewContext(r)
 
 	nuts, err := datastore.NewQuery("Version").Count(c)
 	gonuts.LogError(c, err)

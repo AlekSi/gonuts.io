@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"appengine"
 	"bytes"
 	"html/template"
 	"net/http"
@@ -8,7 +9,7 @@ import (
 	"gonuts"
 )
 
-func aboutHandler(w http.ResponseWriter, r *http.Request) {
+func aboutHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 	var content bytes.Buffer
 	gonuts.PanicIfErr(Base.ExecuteTemplate(&content, "about.html", ""))
 
