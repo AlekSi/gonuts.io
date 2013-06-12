@@ -28,7 +28,6 @@ func ahStatusHandler(c appengine.Context, w http.ResponseWriter, r *http.Request
 	d["GOOS"] = runtime.GOOS
 	d["GOMAXPROCS"] = runtime.GOMAXPROCS(-1)
 	d["NumCPU"] = runtime.NumCPU()
-	d["NumGoroutine"] = runtime.NumGoroutine()
 	ServeJSON(w, http.StatusOK, d)
 	return
 }
