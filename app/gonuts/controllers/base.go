@@ -49,6 +49,7 @@ var (
 
 func init() {
 	Router.Get("/_ah/cron/search", appstats.NewHandler(ahCronSearchHandler))
+	Router.Get("/_ah/status", appstats.NewHandler(ahStatusHandler))
 	Router.Get("/_ah/", appstats.NewHandler(ahHandler))
 
 	Router.Get("/debug/prepare_test", appstats.NewHandler(debugPrepareTestHandler))
