@@ -5,6 +5,7 @@ import (
 	"appengine/datastore"
 	"fmt"
 	"net/http"
+	"runtime"
 	"time"
 
 	"gonuts"
@@ -14,6 +15,19 @@ func ahHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 	d := make(ContentData)
 
 	d["Message"] = "Hello from _ah."
+	ServeJSON(w, http.StatusOK, d)
+	return
+}
+
+func ahStatusHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
+	d := make(ContentData)
+
+	d["Message"] = "OK"
+	d["Version"] = runtime.Version()
+	d["GOARCH"] = runtime.GOARCH
+	d["GOOS"] = runtime.GOOS
+	d["GOMAXPROCS"] = runtime.GOMAXPROCS(-1)
+	d["NumCPU"] = runtime.NumCPU()
 	ServeJSON(w, http.StatusOK, d)
 	return
 }
