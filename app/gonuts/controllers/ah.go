@@ -14,6 +14,13 @@ import (
 func ahHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 	d := make(ContentData)
 
+	go func() {
+		for i := 0; i < 5; i++ {
+			c.Debugf("Hello from _ah %d", i)
+			time.Sleep(time.Second)
+		}
+	}()
+
 	d["Message"] = "Hello from _ah."
 	ServeJSON(w, http.StatusOK, d)
 	return
