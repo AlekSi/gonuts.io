@@ -159,10 +159,8 @@ func nutCreateHandler(c appengine.Context, w http.ResponseWriter, r *http.Reques
 	}
 
 	// update search index
-	go func() {
-		err := gonuts.AddToSearchIndex(c, &nut)
-		gonuts.LogError(c, err)
-	}()
+	err = gonuts.AddToSearchIndex(c, &nut)
+	gonuts.LogError(c, err)
 
 	// done!
 	d["Message"] = fmt.Sprintf("Nut %s/%s version %s published.", vendor, name, ver)
@@ -184,36 +182,44 @@ func nutShowHandler(c appengine.Context, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	v := new(gonuts.Version)
+	current := new(gonuts.Version)
 	var err error
+	q := datastore.NewQuery("Version").Filter("Vendor=", vendor).Filter("Name=", name)
 	if ver == "" {
-		q := datastore.NewQuery("Version").Filter("Vendor=", vendor).Filter("Name=", name).Order("-VersionNum").Limit(1)
-		_, err = q.Run(c).Next(v)
+		_, err = q.Order("-VersionNum").Limit(1).Run(c).Next(current)
 	} else {
 		key := gonuts.VersionKey(c, vendor, name, ver)
-		err = datastore.Get(c, key, v)
+		err = datastore.Get(c, key, current)
 	}
 	gonuts.LogError(c, err)
 
 	var title string
-	if v.BlobKey != "" {
+	if current.BlobKey != "" {
+		// send nut file and exit
 		if getNut {
-			blobstore.Send(w, v.BlobKey)
-			go func() {
-				v.Downloads++
-				key := gonuts.VersionKey(c, v.Vendor, v.Name, v.Version)
-				_, err := datastore.Put(c, key, v)
-				gonuts.LogError(c, err)
-			}()
+			current.Downloads++
+			key := gonuts.VersionKey(c, current.Vendor, current.Name, current.Version)
+			_, err := datastore.Put(c, key, current)
+			gonuts.LogError(c, err)
+			blobstore.Send(w, current.BlobKey)
 			return
 		}
 
-		d["Vendor"] = v.Vendor
-		d["Name"] = v.Name
-		d["Version"] = v.Version
-		d["Doc"] = v.Doc
-		d["Homepage"] = v.Homepage
-		title = fmt.Sprintf("%s/%s %s", v.Vendor, v.Name, v.Version)
+		// find all versions
+		var all []gonuts.Version
+		_, err = q.Order("-CreatedAt").GetAll(c, &all)
+		gonuts.LogError(c, err)
+
+		// prepare data for template
+		cm := make(map[string]interface{})
+		cm["Vendor"] = current.Vendor
+		cm["Name"] = current.Name
+		cm["Version"] = current.Version
+		cm["Doc"] = current.Doc
+		cm["Homepage"] = current.Homepage
+		d["Current"] = cm
+		d["All"] = all
+		title = fmt.Sprintf("%s/%s %s", current.Vendor, current.Name, current.Version)
 	} else {
 		w.WriteHeader(http.StatusNotFound)
 		if getNut {

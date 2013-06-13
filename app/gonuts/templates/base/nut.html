@@ -1,4 +1,4 @@
-{{if .Name}}
+{{with .Current}}
 	{{if .Homepage}}
 		<p>
 			<a href="{{.Homepage}}">{{.Homepage}}</a>
@@ -24,3 +24,12 @@ nut get {{.Vendor}}/{{.Name}}
 nut get gonuts.io/{{.Vendor}}/{{.Name}}
 </pre>
 {{end}}
+
+<p>
+All versions:
+<ul>
+{{range .All}}
+	<li><a href="/{{.Vendor}}/{{.Name}}/{{.Version}}">{{.Version}}</a> {{.CreatedAt.Format "January 2, 2006"}}</li>
+{{end}}
+</ul>
+</p>
