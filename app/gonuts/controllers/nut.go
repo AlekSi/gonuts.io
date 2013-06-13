@@ -159,10 +159,8 @@ func nutCreateHandler(c appengine.Context, w http.ResponseWriter, r *http.Reques
 	}
 
 	// update search index
-	go func() {
-		err := gonuts.AddToSearchIndex(c, &nut)
-		gonuts.LogError(c, err)
-	}()
+	err = gonuts.AddToSearchIndex(c, &nut)
+	gonuts.LogError(c, err)
 
 	// done!
 	d["Message"] = fmt.Sprintf("Nut %s/%s version %s published.", vendor, name, ver)
@@ -199,13 +197,11 @@ func nutShowHandler(c appengine.Context, w http.ResponseWriter, r *http.Request)
 	if current.BlobKey != "" {
 		// send nut file and exit
 		if getNut {
+			current.Downloads++
+			key := gonuts.VersionKey(c, current.Vendor, current.Name, current.Version)
+			_, err := datastore.Put(c, key, current)
+			gonuts.LogError(c, err)
 			blobstore.Send(w, current.BlobKey)
-			go func() {
-				current.Downloads++
-				key := gonuts.VersionKey(c, current.Vendor, current.Name, current.Version)
-				_, err := datastore.Put(c, key, current)
-				gonuts.LogError(c, err)
-			}()
 			return
 		}
 
