@@ -184,36 +184,38 @@ func nutShowHandler(c appengine.Context, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	v := new(gonuts.Version)
+	current := new(gonuts.Version)
 	var err error
 	if ver == "" {
 		q := datastore.NewQuery("Version").Filter("Vendor=", vendor).Filter("Name=", name).Order("-VersionNum").Limit(1)
-		_, err = q.Run(c).Next(v)
+		_, err = q.Run(c).Next(current)
 	} else {
 		key := gonuts.VersionKey(c, vendor, name, ver)
-		err = datastore.Get(c, key, v)
+		err = datastore.Get(c, key, current)
 	}
 	gonuts.LogError(c, err)
 
 	var title string
-	if v.BlobKey != "" {
+	if current.BlobKey != "" {
 		if getNut {
-			blobstore.Send(w, v.BlobKey)
+			blobstore.Send(w, current.BlobKey)
 			go func() {
-				v.Downloads++
-				key := gonuts.VersionKey(c, v.Vendor, v.Name, v.Version)
-				_, err := datastore.Put(c, key, v)
+				current.Downloads++
+				key := gonuts.VersionKey(c, current.Vendor, current.Name, current.Version)
+				_, err := datastore.Put(c, key, current)
 				gonuts.LogError(c, err)
 			}()
 			return
 		}
 
-		d["Vendor"] = v.Vendor
-		d["Name"] = v.Name
-		d["Version"] = v.Version
-		d["Doc"] = v.Doc
-		d["Homepage"] = v.Homepage
-		title = fmt.Sprintf("%s/%s %s", v.Vendor, v.Name, v.Version)
+		cm := make(map[string]interface{})
+		cm["Vendor"] = current.Vendor
+		cm["Name"] = current.Name
+		cm["Version"] = current.Version
+		cm["Doc"] = current.Doc
+		cm["Homepage"] = current.Homepage
+		d["Current"] = cm
+		title = fmt.Sprintf("%s/%s %s", current.Vendor, current.Name, current.Version)
 	} else {
 		w.WriteHeader(http.StatusNotFound)
 		if getNut {
