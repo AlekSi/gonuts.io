@@ -19,5 +19,12 @@ indexes:
   properties:
   - name: Name
   - name: Vendor
+  - name: CreatedAt
+    direction: desc
+
+- kind: Version
+  properties:
+  - name: Name
+  - name: Vendor
   - name: VersionNum
     direction: desc

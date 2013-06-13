@@ -186,9 +186,9 @@ func nutShowHandler(c appengine.Context, w http.ResponseWriter, r *http.Request)
 
 	current := new(gonuts.Version)
 	var err error
+	q := datastore.NewQuery("Version").Filter("Vendor=", vendor).Filter("Name=", name)
 	if ver == "" {
-		q := datastore.NewQuery("Version").Filter("Vendor=", vendor).Filter("Name=", name).Order("-VersionNum").Limit(1)
-		_, err = q.Run(c).Next(current)
+		_, err = q.Order("-VersionNum").Limit(1).Run(c).Next(current)
 	} else {
 		key := gonuts.VersionKey(c, vendor, name, ver)
 		err = datastore.Get(c, key, current)
@@ -197,6 +197,7 @@ func nutShowHandler(c appengine.Context, w http.ResponseWriter, r *http.Request)
 
 	var title string
 	if current.BlobKey != "" {
+		// send nut file and exit
 		if getNut {
 			blobstore.Send(w, current.BlobKey)
 			go func() {
@@ -208,6 +209,12 @@ func nutShowHandler(c appengine.Context, w http.ResponseWriter, r *http.Request)
 			return
 		}
 
+		// find all versions
+		var all []gonuts.Version
+		_, err = q.Order("-CreatedAt").GetAll(c, &all)
+		gonuts.LogError(c, err)
+
+		// prepare data for template
 		cm := make(map[string]interface{})
 		cm["Vendor"] = current.Vendor
 		cm["Name"] = current.Name
@@ -215,6 +222,7 @@ func nutShowHandler(c appengine.Context, w http.ResponseWriter, r *http.Request)
 		cm["Doc"] = current.Doc
 		cm["Homepage"] = current.Homepage
 		d["Current"] = cm
+		d["All"] = all
 		title = fmt.Sprintf("%s/%s %s", current.Vendor, current.Name, current.Version)
 	} else {
 		w.WriteHeader(http.StatusNotFound)
