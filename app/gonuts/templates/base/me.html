@@ -1,9 +1,16 @@
 {{if .LoginURL}}
 	<p><a href="{{.LoginURL}}">Login with Google account.</a><p>
+	<p>
+	  Or login with an OpenID provider:
+	  <form method="POST" action="{{.OpenIDURL}}">
+	    <input type="text" name="provider" value="" />
+	    <input type="submit"  value="Login" />
+	  </form>
+	</p>
 {{else}}
 	{{if .Token}}
 		<p>
-			You are logged in and registered with Google account <code>{{.Email}}</code>. <a href="{{.LogoutURL}}">Logout</a>.
+			You are logged in and registered with user account <code>{{.Identifier}}</code>. <a href="{{.LogoutURL}}">Logout</a>.
 		</p>
 		<p>
 			Your access token is <code>{{.Token}}</code>. <a href="{{.GenerateURL}}">Regenerate</a>.
@@ -18,7 +25,7 @@
 		</p>
 	{{else}}
 		<p>
-			You are logged in with Google account <code>{{.Email}}</code> but not registered yet.
+			You are logged in with user account <code>{{.Identifier}}</code> but not registered yet.
 		</p>
 		<p>
 			Choose vendor (user) name.
@@ -28,7 +35,7 @@
 			</form>
 		</p>
 		<p>
-			Or <a href="{{.LogoutURL}}">logout</a> and use different Google account.
+			Or <a href="{{.LogoutURL}}">logout</a> and use different Google or OpenID account.
 		</p>
 	{{end}}
 {{end}}
