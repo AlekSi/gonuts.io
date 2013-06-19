@@ -55,15 +55,15 @@ func (user *User) AddVendor(vendor *Vendor) {
 	vendor.UserStringID = users
 }
 
-func (user *User) Identifier() string {
-	if user.Email != "" {
-		return user.Email
-	} else if user.FederatedIdentity != "" {
-		return user.FederatedIdentity
+func (user *User) Identifier() (id string) {
+	id = user.Email
+	if id == "" {
+		id = user.FederatedIdentity
 	}
-	// This signals a problem in the data model--either Email or
-	// FederatedIdentity should be filled.
-	return "UNKNOWN"
+	if id == "" {
+		panic(fmt.Errorf("User %#v has neither email nor federated identity.", user))
+	}
+	return
 }
 
 type Vendor struct {
