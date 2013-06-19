@@ -100,7 +100,7 @@ func registerHandler(c appengine.Context, w http.ResponseWriter, r *http.Request
 		gonuts.PanicIfErr(err)
 	}
 
-	http.Redirect(w, r, "/-/me", 303)
+	http.Redirect(w, r, "/-/me", http.StatusSeeOther)
 }
 
 func generateHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
@@ -115,7 +115,7 @@ func generateHandler(c appengine.Context, w http.ResponseWriter, r *http.Request
 		}
 		gonuts.LogError(c, err)
 	}
-	http.Redirect(w, r, "/-/me", 303)
+	http.Redirect(w, r, "/-/me", http.StatusSeeOther)
 }
 
 func openIdHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
@@ -139,5 +139,5 @@ func openIdHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	http.Redirect(w, r, url, 303)
+	http.Redirect(w, r, url, http.StatusSeeOther)
 }
