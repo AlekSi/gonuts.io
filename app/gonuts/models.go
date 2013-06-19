@@ -17,10 +17,10 @@ type User struct {
 	// StringID (entity name, key name) is appengine/user.User.ID
 	Id                string // same as StringID
 	Email             string
+	FederatedIdentity string
 	Token             string
 	Debug             bool
 	Vendors           []string
-	FederatedIdentity string
 }
 
 func UserKey(c appengine.Context, u *user.User) *datastore.Key {
@@ -55,13 +55,15 @@ func (user *User) AddVendor(vendor *Vendor) {
 	vendor.UserStringID = users
 }
 
-func (user *User) Identifier() (string, error) {
+func (user *User) Identifier() string {
 	if user.Email != "" {
-		return user.Email, nil
+		return user.Email
 	} else if user.FederatedIdentity != "" {
-		return user.FederatedIdentity, nil
+		return user.FederatedIdentity
 	}
-	return "", fmt.Errorf("User %s has neither email nor federated identity", user.Id)
+	// This signals a problem in the data model--either Email or
+	// FederatedIdentity should be filled.
+	return "UNKNOWN"
 }
 
 type Vendor struct {

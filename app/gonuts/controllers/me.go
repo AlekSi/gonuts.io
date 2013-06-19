@@ -6,11 +6,12 @@ import (
 	gaeuser "appengine/user"
 	"bytes"
 	"fmt"
-	"gonuts"
-	nutp "gonuts.io/AlekSi/nut"
 	"html/template"
 	"net/http"
 	"net/url"
+
+	"gonuts"
+	nutp "gonuts.io/AlekSi/nut"
 )
 
 func myHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
@@ -29,7 +30,7 @@ func myHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 			url, err := gaeuser.LogoutURL(c, "/")
 			gonuts.LogError(c, err)
 			d["LogoutURL"] = url
-			d["Identifier"], _ = user.Identifier()
+			d["Identifier"] = user.Identifier()
 			d["Token"] = user.Token
 			d["GenerateURL"] = "/-/me/generate"
 			d["Vendors"] = user.Vendors
@@ -38,7 +39,7 @@ func myHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 			url, err := gaeuser.LogoutURL(c, "/-/me")
 			gonuts.LogError(c, err)
 			d["LogoutURL"] = url
-			d["Identifier"], _ = user.Identifier()
+			d["Identifier"] = user.Identifier()
 			d["RegisterURL"] = "/-/me/register"
 		} else {
 			panic(err)
@@ -91,8 +92,7 @@ func registerHandler(c appengine.Context, w http.ResponseWriter, r *http.Request
 			return
 		}
 
-		id, _ := user.Identifier()
-		c.Infof("Adding user %s (%s) to vendor %s.", user.Id, id, v.Vendor)
+		c.Infof("Adding user %s (%s) to vendor %s.", user.Id, user.Identifier(), v.Vendor)
 		user.AddVendor(v)
 		_, err = datastore.Put(c, gonuts.VendorKey(c, vendor), v)
 		gonuts.PanicIfErr(err)
