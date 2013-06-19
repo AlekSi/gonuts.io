@@ -15,11 +15,12 @@ import (
 
 type User struct {
 	// StringID (entity name, key name) is appengine/user.User.ID
-	Id      string // same as StringID
-	Email   string
-	Token   string
-	Debug   bool
-	Vendors []string
+	Id                string // same as StringID
+	Email             string
+	FederatedIdentity string
+	Token             string
+	Debug             bool
+	Vendors           []string
 }
 
 func UserKey(c appengine.Context, u *user.User) *datastore.Key {
@@ -52,6 +53,17 @@ func (user *User) AddVendor(vendor *Vendor) {
 	}
 	sort.Strings(users)
 	vendor.UserStringID = users
+}
+
+func (user *User) Identifier() (id string) {
+	id = user.Email
+	if id == "" {
+		id = user.FederatedIdentity
+	}
+	if id == "" {
+		panic(fmt.Errorf("User %#v has neither email nor federated identity.", user))
+	}
+	return
 }
 
 type Vendor struct {

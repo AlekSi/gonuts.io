@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
 
 	"gonuts"
 	nutp "gonuts.io/AlekSi/nut"
@@ -21,6 +22,7 @@ func myHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 		url, err := gaeuser.LoginURL(c, "/-/me")
 		gonuts.LogError(c, err)
 		d["LoginURL"] = url
+		d["OpenIDURL"] = "/-/me/openid"
 	} else {
 		user := new(gonuts.User)
 		err := datastore.Get(c, gonuts.UserKey(c, u), user)
@@ -28,15 +30,16 @@ func myHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 			url, err := gaeuser.LogoutURL(c, "/")
 			gonuts.LogError(c, err)
 			d["LogoutURL"] = url
-			d["Email"] = user.Email
+			d["Identifier"] = user.Identifier()
 			d["Token"] = user.Token
 			d["GenerateURL"] = "/-/me/generate"
 			d["Vendors"] = user.Vendors
 		} else if err == datastore.ErrNoSuchEntity {
+			user = &gonuts.User{Id: u.ID, Email: u.Email, FederatedIdentity: u.FederatedIdentity}
 			url, err := gaeuser.LogoutURL(c, "/-/me")
 			gonuts.LogError(c, err)
 			d["LogoutURL"] = url
-			d["Email"] = u.Email
+			d["Identifier"] = user.Identifier()
 			d["RegisterURL"] = "/-/me/register"
 		} else {
 			panic(err)
@@ -66,7 +69,7 @@ func registerHandler(c appengine.Context, w http.ResponseWriter, r *http.Request
 		}
 
 		v := &gonuts.Vendor{Vendor: vendor}
-		user := &gonuts.User{Id: u.ID, Email: u.Email}
+		user := &gonuts.User{Id: u.ID, Email: u.Email, FederatedIdentity: u.FederatedIdentity}
 		gonuts.PanicIfErr(user.GenerateToken())
 
 		err = datastore.Get(c, gonuts.VendorKey(c, vendor), v)
@@ -89,7 +92,7 @@ func registerHandler(c appengine.Context, w http.ResponseWriter, r *http.Request
 			return
 		}
 
-		c.Infof("Adding user %s (%s) to vendor %s.", user.Id, user.Email, v.Vendor)
+		c.Infof("Adding user %s (%s) to vendor %s.", user.Id, user.Identifier(), v.Vendor)
 		user.AddVendor(v)
 		_, err = datastore.Put(c, gonuts.VendorKey(c, vendor), v)
 		gonuts.PanicIfErr(err)
@@ -97,7 +100,7 @@ func registerHandler(c appengine.Context, w http.ResponseWriter, r *http.Request
 		gonuts.PanicIfErr(err)
 	}
 
-	http.Redirect(w, r, "/-/me", 303)
+	http.Redirect(w, r, "/-/me", http.StatusSeeOther)
 }
 
 func generateHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
@@ -112,5 +115,29 @@ func generateHandler(c appengine.Context, w http.ResponseWriter, r *http.Request
 		}
 		gonuts.LogError(c, err)
 	}
-	http.Redirect(w, r, "/-/me", 303)
+	http.Redirect(w, r, "/-/me", http.StatusSeeOther)
+}
+
+func openIdHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
+	u := gaeuser.Current(c)
+	if u != nil && u.ID != "" {
+		err := fmt.Errorf("This page is not supposed to be accessible by logged-in users")
+		WriteError(w, http.StatusForbidden, err)
+		return
+	}
+
+	provider := r.FormValue("provider")
+	if _, err := url.Parse(provider); err != nil {
+		err := fmt.Errorf("OpenID provider name should be a valid url")
+		WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	url, err := gaeuser.LoginURLFederated(c, "/-/me", provider)
+	if err != nil {
+		gonuts.LogError(c, err)
+		return
+	}
+
+	http.Redirect(w, r, url, http.StatusSeeOther)
 }

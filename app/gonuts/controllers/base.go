@@ -60,6 +60,7 @@ func init() {
 	Router.Get("/-/me", appstats.NewHandler(myHandler))
 	Router.Post("/-/me/register", appstats.NewHandler(registerHandler))
 	Router.Get("/-/me/generate", appstats.NewHandler(generateHandler))
+	Router.Post("/-/me/openid", appstats.NewHandler(openIdHandler))
 	Router.Get("/-/nuts", appstats.NewHandler(nutsHandler))
 
 	Router.Put("/:vendor/:name/:version", appstats.NewHandler(nutCreateHandler))
