@@ -64,14 +64,13 @@ func debugPrepareTestHandler(c appengine.Context, w http.ResponseWriter, r *http
 		if err == nil {
 			err = datastore.Delete(c, key)
 		}
-		if err == nil {
-			err = gonuts.RemoveFromSearchIndex(c, &nut)
-		}
 		if err != nil {
 			gonuts.LogError(c, err)
 			ServeJSONError(w, http.StatusInternalServerError, err, d)
 			return
 		}
+		err = gonuts.RemoveFromSearchIndex(c, &nut)
+		gonuts.LogError(c, err)
 	}
 
 	d["Message"] = "OK"
