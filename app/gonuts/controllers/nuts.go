@@ -40,10 +40,14 @@ func nutsHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 	}
 	gonuts.LogError(c, err)
 	d["Nuts"] = nuts
+	status := http.StatusOK
+	if len(nuts) == 0 {
+		status = http.StatusNotFound
+	}
 
 	if apiCall {
 		d["Message"] = title
-		ServeJSON(w, http.StatusOK, d)
+		ServeJSON(w, status, d)
 		return
 	}
 
@@ -56,5 +60,6 @@ func nutsHandler(c appengine.Context, w http.ResponseWriter, r *http.Request) {
 		Content:  template.HTML(content.String()),
 	}
 
+	w.WriteHeader(status)
 	gonuts.PanicIfErr(Base.Execute(w, &bd))
 }
