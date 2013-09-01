@@ -1,5 +1,5 @@
 GOPATH:=$(shell pwd)/gopath
-SDKROOT:=/usr/local/Cellar/go-app-engine-64/1.8.1/share/go-app-engine-64
+SDKROOT:=/usr/local/Cellar/go-app-engine-64/1.8.3/share/go-app-engine-64
 
 GOFILES:=$(shell cd app && find . -name *.go)
 
