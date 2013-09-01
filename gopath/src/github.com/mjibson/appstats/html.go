@@ -175,8 +175,13 @@ const htmlMain = `
           <td>{{/*$item.CostPct*/}}</td>
           <td>{{$item.Requests}}</td>
           <td>
-            {{ range $index := $item.RecentReqs }}
-                {{ if $index }} <a href="#req-{{$index}}">({{$index}})</a> {{ else }} ... {{ end }}
+            {{ range $index, $element := $item.RecentReqs }}
+                {{ if lt $index 10 }}
+                    <a href="#req-{{$element}}">({{$element}})</a>
+                {{ end }}
+                {{ if eq $index 10 }}
+                    ...
+                {{ end }}
             {{ end }}
           </td>
           <tbody class="path path-{{$index}}">

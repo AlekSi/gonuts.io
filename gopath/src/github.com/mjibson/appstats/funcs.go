@@ -57,8 +57,13 @@ func rjust(i, count int) string {
 	return strings.Repeat(" ", count-len(s)) + s
 }
 
+func lt(a, b int) bool {
+	return a < b
+}
+
 var funcs = template.FuncMap{
 	"add":   add,
 	"eq":    eq,
+	"lt":    lt,
 	"rjust": rjust,
 }
