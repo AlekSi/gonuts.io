@@ -92,7 +92,7 @@ func nutCreateHandler(c appengine.Context, w http.ResponseWriter, r *http.Reques
 		return
 	}
 	if err == nil {
-		ServeJSONError(w, http.StatusConflict, fmt.Errorf("Nut %s/%s version %s already exists.", vendor, name, ver), d)
+		ServeJSONError(w, http.StatusConflict, fmt.Errorf("Nut %s/%s/%s already exists.", vendor, name, ver), d)
 		return
 	}
 
@@ -163,7 +163,7 @@ func nutCreateHandler(c appengine.Context, w http.ResponseWriter, r *http.Reques
 	gonuts.LogError(c, err)
 
 	// done!
-	d["Message"] = fmt.Sprintf("Nut %s/%s version %s published.", vendor, name, ver)
+	d["Message"] = fmt.Sprintf("Nut %s/%s/%s published.", vendor, name, ver)
 	ServeJSON(w, http.StatusCreated, d)
 	return
 }
@@ -225,7 +225,7 @@ func nutShowHandler(c appengine.Context, w http.ResponseWriter, r *http.Request)
 		if getNut {
 			return
 		}
-		title = fmt.Sprintf("Nut %s/%s version %s not found", vendor, name, ver)
+		title = fmt.Sprintf("Nut %s/%s/%s not found", vendor, name, ver)
 	}
 
 	var content bytes.Buffer
